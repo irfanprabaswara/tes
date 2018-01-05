@@ -33,4 +33,70 @@ class TelegramController extends Controller
         'text' => 'Hey! This is bot sending you the first message :)'
       ]);
     }
+
+    public function setWebHook()
+    {
+      $response = Telegram::setWebhook(['url' => 'https://b0ca66eb.ngrok.io/502539981:AAE7FDMraFwOV40U8NNR4MLpIkmnE1J7r84/webhook']);
+      return $response;
+    }
+
+    public function showMenu($chatid, $info = null){
+        $message = '';
+        if($info !== null){
+            $message .= $info.chr(10);
+        }
+        $message .=  '/website'.chr(10);
+        $message .= '/contact'.chr(10);
+
+        $response = Telegram::sendMessage([
+            'chat_id' => $chatid,
+            'text' => $message
+        ]);
+    }
+
+    public function showWebsite($chatid){
+        $message = 'http://google.com';
+
+        $response = Telegram::sendMessage([
+            'chat_id' => $chatid,
+            'text' => $message
+        ]);
+    }
+
+    public function showContact($chatid){
+        $message = 'info@jqueryajaxphp.com';
+
+        $response = Telegram::sendMessage([
+            'chat_id' => $chatid,
+            'text' => $message
+        ]);
+    }
+
+
+    public function webhook(Request $request)
+    {
+
+	      $chatid = $request['message']['chat']['id'];
+      	$text = $request['message']['text'];
+
+      	switch($text)
+        {
+      		case '/start':
+      			$this->showMenu($chatid);
+      			break;
+      		case '/menu':
+      		    $this->showMenu($chatid);
+      		    break;
+      		case '/website':
+      			$this->showWebsite($chatid);
+      			break;
+      		case '/contact';
+      			$this->showContact($chatid);
+      			break;
+      		default:
+      			$info = 'I do not understand what you just said. Please choose an option';
+      			$this->showMenu($chatid, $info);
+	      }
+    }
+
     }
