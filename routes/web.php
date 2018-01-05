@@ -14,3 +14,9 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('telegram/getme','TelegramController@getMe');
+
+Route::get('telegram/getupdates','TelegramController@getupdates');
+
+Route::get('telegram/respon','TelegramController@respon');
