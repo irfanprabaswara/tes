@@ -27,17 +27,12 @@ class TelegramController extends Controller
 
       $chatid = $request['message']['chat']['id']; // get chatid from request
       $text = $request['message']['text']; // get the user sent text
+      // $time = $request['message']['']
 
       $response = Telegram::sendMessage([
         'chat_id' => $chatid,
         'text' => 'Hey! This is bot sending you the first message :)'
       ]);
-    }
-
-    public function setWebHook()
-    {
-      $response = Telegram::setWebhook(['url' => 'https://b0ca66eb.ngrok.io/502539981:AAE7FDMraFwOV40U8NNR4MLpIkmnE1J7r84/webhook']);
-      return $response;
     }
 
     public function showMenu($chatid, $info = null){
@@ -47,6 +42,7 @@ class TelegramController extends Controller
         }
         $message .=  '/website'.chr(10);
         $message .= '/contact'.chr(10);
+        $message .= '/time'.chr(10);
 
         $response = Telegram::sendMessage([
             'chat_id' => $chatid,
@@ -72,6 +68,16 @@ class TelegramController extends Controller
         ]);
     }
 
+    public function showTime($chatid)
+    {
+        $message = "$namauser, waktu lokal bot sekarang adalah :\n";
+        $message .= date("d M Y")."\nPukul ".date("H:i:s");
+
+        $response = Telegram::sendMessage([
+            'chat_id' => $chatid,
+            'text' => $message
+        ]);
+    }
 
     public function webhook(Request $request)
     {
@@ -90,11 +96,16 @@ class TelegramController extends Controller
       		case '/website':
       			$this->showWebsite($chatid);
       			break;
+
+          case '/time':
+            $this->showTime($chatid);
+            break;
+
       		case '/contact';
       			$this->showContact($chatid);
       			break;
       		default:
-      			$info = 'I do not understand what you just said. Please choose an option';
+      			$info = 'Hallo, silakan pilih opsi berikut :';
       			$this->showMenu($chatid, $info);
 	      }
     }
