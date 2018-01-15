@@ -26,3 +26,5 @@ Route::get('removewebhook','removeWebhook@removeWebhook');
 Route::get('setwebhook', 'setWebHook@setWebHook');
 
 Route::post('502539981:AAE7FDMraFwOV40U8NNR4MLpIkmnE1J7r84/webhook', 'TelegramController@webhook');
+
+Route::get('telegram/time', 'setWebHook@showMenu');
