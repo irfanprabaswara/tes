@@ -11,20 +11,44 @@
 |
 */
 
+//use Telegram;
+
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('telegram/getme','TelegramController@getMe');
+Route::get('/testing', function () {
+    return view('testing');
+});
 
-Route::get('telegram/getupdates','TelegramController@getupdates');
+Route::get('/sendMsg', function () {
+    return view('sendMsg');
+});
 
-Route::get('telegram/respon','TelegramController@respon');
+Route::get('/me', 'ApiController@me');
 
-Route::get('removewebhook','removeWebhook@removeWebhook');
+Route::get('driver', 'ApiController@respond');
 
-Route::get('setwebhook', 'setWebHook@setWebHook');
+Route::get('cek', 'ApiController@me');
 
-Route::post('502539981:AAE7FDMraFwOV40U8NNR4MLpIkmnE1J7r84/webhook', 'TelegramController@webhook');
+Route:: get('tesHello','HelloWorld_Test@index');
 
-Route::get('telegram/time', 'setWebHook@showMenu');
+Route::get('/tesHello/{name}', 'HelloWorld_Test@show');
+
+Route::get('capture', 'BrowsershotController@capturePage');
+
+Route::get('/setwebhook', 'ApiController@setWebhook');
+
+Route::get('/unsetwebhook', 'ApiController@unsetWebhook');
+
+// Route::post('webhook', 'ApiController@webhook');
+
+Route::post('webhook', 'TelegramController@webhook');
+
+Route::get('respond', 'TelegramController@respond');
+
+// Route::post('/webhook', function () {
+	// $updates = Telegram::getWebhookUpdates();
+	// // $update = Telegram::commandsHandler(true);
+	// return 'ok';
+// });
