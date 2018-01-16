@@ -17,9 +17,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 //PERLU DIPERHATIKAN
 class WebController extends Controller
-{//PERLU DIPERHATIKAN new Api ('502539981:AAE7FDMraFwOV40U8NNR4MLpIkmnE1J7r84')punya kanwil 487527724:AAFY0w-boPptsrAsKMdVAgFbf0wuKliiTHg
+{//PERLU DIPERHATIKAN new Api
 	public function respond(){
-		$telegram = new Api ('502539981:AAE7FDMraFwOV40U8NNR4MLpIkmnE1J7r84');
+		$telegram = new Api (env('TELEGRAM_BOT_TOKEN'));
 		$request = $telegram->getUpdates();
 		$request = collect(end($request));
 		$callback_query_id = 0;
@@ -164,7 +164,7 @@ class WebController extends Controller
 				   break;
 			}
 		}catch(Exception $e){
-			//PERLU DIPERHATIKAN CHAT ID 437329516, punya kanwil 67409805
+			//PERLU DIPERHATIKAN CHAT ID 437329516
 			Telegram::sendMessage([
 				'chat_id' => 437329516,
 				'text' => "Reply ".$e->getMessage()
@@ -329,7 +329,6 @@ class WebController extends Controller
 				'text' => "Data Driver salah"
 			]);
 		}
-
 		$messageId = $response->getMessageId();
 	}
 
@@ -518,5 +517,11 @@ class WebController extends Controller
 			'text' => $message
 		]);
 	}
+
+	// public function pesanDriver($chatid, $params)
+	// {
+	// 	$this setPic($chatid);
+	// }
+
 }
 ?>

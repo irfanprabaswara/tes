@@ -27,13 +27,15 @@ Route::get('/sendMsg', function () {
 
 Route::get('/me', 'ApiController@me');
 
-Route::get('driver', 'ApiController@respond');
+Route::get('/update', 'ApiController@updates');
 
-Route::get('cek', 'ApiController@me');
+//Route::get('driver', 'ApiController@respond');
 
-Route:: get('tesHello','HelloWorld_Test@index');
+//Route::get('cek', 'ApiController@me');
 
-Route::get('/tesHello/{name}', 'HelloWorld_Test@show');
+//Route:: get('tesHello','HelloWorld_Test@index');
+
+//Route::get('/tesHello/{name}', 'HelloWorld_Test@show');
 
 Route::get('capture', 'BrowsershotController@capturePage');
 

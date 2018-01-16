@@ -28,9 +28,10 @@ class ApiController extends Controller
 		return $response;
 	}
 
-  //PERLU DIPERHATIKAN 502539981:AAE7FDMraFwOV40U8NNR4MLpIkmnE1J7r84/webhook punya kanwil 95bb24ec.ngrok.io/kanwilbot/public
+  //token apaya 405325770:AAG49XI9pWQSpi5OsC0hz_muUFj0QmFjndM
+  //PERLU DIPERHATIKAN 502539981:AAE7FDMraFwOV40U8NNR4MLpIkmnE1J7r84/webhook punya kanwil
 	public function setWebhook(){
-		$response = Telegram::setWebhook(['url' => 'https://2be07ce5.ngrok.io/502539981:AAE7FDMraFwOV40U8NNR4MLpIkmnE1J7r84/webhook',]);
+		$response = Telegram::setWebhook(['url' => 'https://f770a474.ngrok.io/405325770:AAG49XI9pWQSpi5OsC0hz_muUFj0QmFjndM/webhook',]);
 		dd($response);
 	}
 
@@ -50,7 +51,7 @@ class ApiController extends Controller
 
     //PERLU DIPERHATIKAN 437329516
 		Telegram::sendMessage([
-				'chat_id' => 67409805,
+				'chat_id' => 437329516,
 				'text' => "DEBUG\n".$updates->isType('callback_query')
 				]);
 
