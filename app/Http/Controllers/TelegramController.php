@@ -20,13 +20,29 @@ use Illuminate\Support\Facades\Log;
 class TelegramController extends Controller
 {//PERLU DIPERHATIKAN new Api
 	// <meta name="csrf-token" content="{{ csrf_token() }}">
-	public function showWebsite($chatid){
-    $message = 'http://google.com';
+	public function me()
+	{
+		$telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
+		$response = $telegram->getMe();
+		return $response;
+	}
 
-    $response = Telegram::sendMessage([
-        'chat_id' => $chatid,
-        'text' => $message
-    ]);
+	public function updates()
+	{
+		$telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
+		$response = $telegram->getUpdates();
+		return $response;
+	}
+
+	public function setWebhook(){
+		$response = Telegram::setWebhook(['url' => 'https://418287c1.ngrok.io/405325770:AAG49XI9pWQSpi5OsC0hz_muUFj0QmFjndM/webhook',]);
+		dd($response);
+	}
+
+	public function unsetWebhook()
+	{
+		$response = Telegram::removeWebhook();
+		dd($response);
 	}
 
 	public function showMenu($chatid, $info = null){
@@ -43,32 +59,80 @@ class TelegramController extends Controller
     ]);
 	}
 
-	public function webhook()
-	{
-	$telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
+	public function showWebsite($chatid){
+    $message = 'http://google.com';
 
-	$chatid = $request['message']['chat']['id'];
-	$text = $request['message']['text'];
-
-	switch($text) {
-		case '/start':
-			$this->showMenu($chatid);
-			break;
-		case '/menu':
-		    $this->showMenu($chatid);
-		    break;
-		case '/website':
-			$this->showWebsite($chatid);
-			break;
-		case '/contact';
-			$this->showContact($chatid);
-			break;
-		default:
-			$info = 'I do not understand what you just said. Please choose an option';
-			$this->showMenu($chatid, $info);
-		}
+    $response = Telegram::sendMessage([
+        'chat_id' => $chatid,
+        'text' => $message
+    ]);
 	}
-	/*public function respond(){
+
+	public function showContact($chatid){
+    $message = 'info@jqueryajaxphp.com';
+
+    $response = Telegram::sendMessage([
+        'chat_id' => $chatid,
+        'text' => $message
+    ]);
+	}
+
+// 	public function respond(){
+//     $telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
+//     $response = $telegram->getUpdates();
+//     $request = collect(end($response));
+//
+//     $chatid = $request['message']['chat']['id'];
+//     $text = $request['message']['text'];
+//
+//     switch($text) {
+//         case '/start':
+//             $this->showMenu($chatid);
+//             break;
+//         case '/menu':
+//             $this->showMenu($chatid);
+//             break;
+//         case '/website':
+//             $this->showWebsite($chatid);
+//             break;
+//         case '/contact';
+//             $this->showContact($chatid);
+//             break;
+//         default:
+//             $info = 'I do not understand what you just said. Please choose an option';
+//             $this->showMenu($chatid, $info);
+//     }
+// }
+//
+	// public function webhook(Request $request)
+	// {
+	// 	$telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
+  //
+	// 	$chatid = $request['message']['chat']['id'];
+	// 	$text = $request['message']['text'];
+  //
+	// 	switch($text) {
+	// 		case '/start':
+	// 			$this->showMenu($chatid);
+	// 		break;
+	// 		case '/menu':
+	// 	   	$this->showMenu($chatid);
+	// 	 	break;
+	// 		case '/website':
+	// 			$this->showWebsite($chatid);
+	// 		break;
+	// 		case '/contact';
+	// 			$this->showContact($chatid);
+	// 		break;
+	// 		default:
+	// 			$info = 'Coba pilih pilihan ini :';
+	// 			$this->showMenu($chatid, $info);
+	// 	}
+	//  }
+
+
+
+		public function respond(){
 		$telegram = new Api (env('TELEGRAM_BOT_TOKEN'));
 		$request = Telegram::getUpdates();
 		$request = collect(end($request));
@@ -138,90 +202,90 @@ class TelegramController extends Controller
 		return $request;
 	}
 	//public function webhook(Request $request){
-	public function webhook(){
-		try{
-			$request = Telegram::getWebhookUpdates();
-
-			if($request->isType('callback_query')){
-				$query = $request->getCallbackQuery();
-				$text = $query->getData();
-				$chatid = $query->getMessage()->getChat()->getId();
-				$messageid = $query->getMessage()->getMessageId();
-				$callback_query_id = $query->getId();
-			}else{
-				$chatid = $request->getMessage()->getChat()->getId();
-				$text = $request->getMessage()->getText();
-				$callback_query_id = 0;
-			}
-
-			switch($text) {
-				case $text === '/start':
-					$this->showWelcomeMessage($chatid);
-					break;
-				case $text === 'website':
-				   $this->showWebsite($chatid, $callback_query_id);
-					   break;
-				case $text === 'contact':
-				   $this->showContact($chatid, $callback_query_id);
-				   break;
-				case $text === '/driver':
-					$this->showDriverList($chatid);
-					break;
-				case $text === '/updatedriver':
-					$this->showUpdateDriver($chatid);
-					break;
-				case substr($text,0,7) === '/upddrv':
-					$listparams = substr($text,7);
-					$params = explode('#',$listparams);
-					unset($params[0]);
-					$params = array_values($params);
-
-					if(count($params)==1){
-						$this->confirmDriver($chatid, $params);
-					}elseif(count($params)==2){
-						if($params[1]=="set"){
-							$this->setPic($chatid, $params);
-						}else{
-							$this->releaseDriver($chatid, $params);
-						}
-					}elseif(count($params)==3){
-						// $callback_query_id=0;
-						$month_input = date("Y-m");
-						$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
-					}elseif(count($params)==4){
-						// $callback_query_id=0;
-						$this->setLocation($chatid, $params);
-					}elseif(count($params)==5){
-						// $callback_query_id=0;
-						$this->saveTheUpdates($chatid, $params);
-					}
-
-					//$response_txt .= "Mengenal command dan berhasil merespon\n";
-					break;
-				// case $text === '/calendar':
-					// $month_input = date("Y-m");
-					// $callback_query_id=0;
-					// $this->showCalendar($chatid, $month_input, $callback_query_id);
-					// //$response_txt .= "Mengenal command dan berhasil merespon\n";
-					// break;
-				case substr($text,0,6) === 'change':
-					$month_input = substr($text,6,7);
-					$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
-					break;
-				default:
-				   $info = 'I do not understand what you just said. Please choose an option';
-				   $this->showMenu($chatid, $info);
-				   break;
-			}
-		}catch(Exception $e){
-			//PERLU DIPERHATIKAN CHAT ID 437329516
-			Telegram::sendMessage([
-				'chat_id' => 437329516,
-				'text' => "Reply ".$e->getMessage()
-			]);
-		}
-		return 'ok';
-	}
+	// public function webhook(){
+	// 	try{
+	// 		$request = Telegram::getWebhookUpdates();
+  //
+	// 		if($request->isType('callback_query')){
+	// 			$query = $request->getCallbackQuery();
+	// 			$text = $query->getData();
+	// 			$chatid = $query->getMessage()->getChat()->getId();
+	// 			$messageid = $query->getMessage()->getMessageId();
+	// 			$callback_query_id = $query->getId();
+	// 		}else{
+	// 			$chatid = $request->getMessage()->getChat()->getId();
+	// 			$text = $request->getMessage()->getText();
+	// 			$callback_query_id = 0;
+	// 		}
+  //
+	// 		switch($text) {
+	// 			case $text === '/start':
+	// 				$this->showWelcomeMessage($chatid);
+	// 				break;
+	// 			case $text === 'website':
+	// 			   $this->showWebsite($chatid, $callback_query_id);
+	// 				   break;
+	// 			case $text === 'contact':
+	// 			   $this->showContact($chatid, $callback_query_id);
+	// 			   break;
+	// 			case $text === '/driver':
+	// 				$this->showDriverList($chatid);
+	// 				break;
+	// 			case $text === '/updatedriver':
+	// 				$this->showUpdateDriver($chatid);
+	// 				break;
+	// 			case substr($text,0,7) === '/upddrv':
+	// 				$listparams = substr($text,7);
+	// 				$params = explode('#',$listparams);
+	// 				unset($params[0]);
+	// 				$params = array_values($params);
+  //
+	// 				if(count($params)==1){
+	// 					$this->confirmDriver($chatid, $params);
+	// 				}elseif(count($params)==2){
+	// 					if($params[1]=="set"){
+	// 						$this->setPic($chatid, $params);
+	// 					}else{
+	// 						$this->releaseDriver($chatid, $params);
+	// 					}
+	// 				}elseif(count($params)==3){
+	// 					// $callback_query_id=0;
+	// 					$month_input = date("Y-m");
+	// 					$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
+	// 				}elseif(count($params)==4){
+	// 					// $callback_query_id=0;
+	// 					$this->setLocation($chatid, $params);
+	// 				}elseif(count($params)==5){
+	// 					// $callback_query_id=0;
+	// 					$this->saveTheUpdates($chatid, $params);
+	// 				}
+  //
+	// 				//$response_txt .= "Mengenal command dan berhasil merespon\n";
+	// 				break;
+	// 			// case $text === '/calendar':
+	// 				// $month_input = date("Y-m");
+	// 				// $callback_query_id=0;
+	// 				// $this->showCalendar($chatid, $month_input, $callback_query_id);
+	// 				// //$response_txt .= "Mengenal command dan berhasil merespon\n";
+	// 				// break;
+	// 			case substr($text,0,6) === 'change':
+	// 				$month_input = substr($text,6,7);
+	// 				$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
+	// 				break;
+	// 			default:
+	// 			   $info = 'I do not understand what you just said. Please choose an option';
+	// 			   $this->showMenu($chatid, $info);
+	// 			   break;
+	// 		}
+	// 	}catch(Exception $e){
+	// 		//PERLU DIPERHATIKAN CHAT ID 437329516
+	// 		Telegram::sendMessage([
+	// 			'chat_id' => 437329516,
+	// 			'text' => "Reply ".$e->getMessage()
+	// 		]);
+	// 	}
+	// 	return 'ok';
+	// }
 
 	public function showWelcomeMessage($chatid){
 		$message = "Sugeng rawuh. Bot Kanwil Yogya siap membantu seadanya";
@@ -566,7 +630,7 @@ class TelegramController extends Controller
 			'chat_id' => $chatid,
 			'text' => $message
 		]);
-	}*/
+	}
 
 	// public function pesanDriver($chatid, $params)
 	// {
