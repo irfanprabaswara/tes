@@ -16,11 +16,61 @@ use DateInterval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 //PERLU DIPERHATIKAN
-class WebController extends Controller
+
+class TelegramController extends Controller
 {//PERLU DIPERHATIKAN new Api
-	public function respond(){
+	// <meta name="csrf-token" content="{{ csrf_token() }}">
+	public function showWebsite($chatid){
+    $message = 'http://google.com';
+
+    $response = Telegram::sendMessage([
+        'chat_id' => $chatid,
+        'text' => $message
+    ]);
+	}
+
+	public function showMenu($chatid, $info = null){
+    $message = '';
+    if($info !== null){
+        $message .= $info.chr(10);
+    }
+    $message .=  '/website'.chr(10);
+    $message .= '/contact'.chr(10);
+
+    $response = Telegram::sendMessage([
+        'chat_id' => $chatid,
+        'text' => $message
+    ]);
+	}
+
+	public function webhook()
+	{
+	$telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
+
+	$chatid = $request['message']['chat']['id'];
+	$text = $request['message']['text'];
+
+	switch($text) {
+		case '/start':
+			$this->showMenu($chatid);
+			break;
+		case '/menu':
+		    $this->showMenu($chatid);
+		    break;
+		case '/website':
+			$this->showWebsite($chatid);
+			break;
+		case '/contact';
+			$this->showContact($chatid);
+			break;
+		default:
+			$info = 'I do not understand what you just said. Please choose an option';
+			$this->showMenu($chatid, $info);
+		}
+	}
+	/*public function respond(){
 		$telegram = new Api (env('TELEGRAM_BOT_TOKEN'));
-		$request = $telegram->getUpdates();
+		$request = Telegram::getUpdates();
 		$request = collect(end($request));
 		$callback_query_id = 0;
 		$chatid = $request['message']['chat']['id'];
@@ -516,7 +566,7 @@ class WebController extends Controller
 			'chat_id' => $chatid,
 			'text' => $message
 		]);
-	}
+	}*/
 
 	// public function pesanDriver($chatid, $params)
 	// {

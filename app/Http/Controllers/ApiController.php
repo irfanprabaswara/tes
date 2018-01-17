@@ -29,9 +29,9 @@ class ApiController extends Controller
 	}
 
   //token apaya 405325770:AAG49XI9pWQSpi5OsC0hz_muUFj0QmFjndM
-  //PERLU DIPERHATIKAN 502539981:AAE7FDMraFwOV40U8NNR4MLpIkmnE1J7r84/webhook punya kanwil
+  //PERLU DIPERHATIKAN
 	public function setWebhook(){
-		$response = Telegram::setWebhook(['url' => 'https://f770a474.ngrok.io/405325770:AAG49XI9pWQSpi5OsC0hz_muUFj0QmFjndM/webhook',]);
+		$response = Telegram::setWebhook(['url' => 'https://418287c1.ngrok.io/webhook',]);
 		dd($response);
 	}
 
@@ -123,9 +123,9 @@ class ApiController extends Controller
 					$this->updateDriverThird($command, $chatid);
 					$response_txt .= "Mengenal command dan berhasil merespon\n";
 					break;
-				case $command === '/sensusedc':
-					$this->sensusEdc($params, $chatid);
-					$response_txt .= "Mengenal command dan berhasil merespon\n";
+				// case $command === '/sensusedc':
+				// 	$this->sensusEdc($params, $chatid);
+				// 	$response_txt .= "Mengenal command dan berhasil merespon\n";
 					break;
 				// default:
 					// $info = 'I do not understand what you just said. Please choose an option';
@@ -163,88 +163,88 @@ class ApiController extends Controller
 		]);
 	}
 
-	public function showVersiBrilinkWebhook($chatid, $params){
-		$message="_";
-		//menampilkan help bila command tidak disertai parameter
-		if ($params ==""){
-			$message = "Update Versi Brilink\n\n";
-			$message .= "Command untuk mengupdate status update versi dengan format sbb :\n";
-			$message .= "/versibrilink A#B#C\n\n";
-			$message .= "huruf A diisi dengan :\n";
-			$message .= "1. plnh2h \n";
-			$message .= "\n";
-			$message .= "huruf B diisi dengan tid \n\n";
-			$message .= "huruf C diisi dengan status :\n";
-			$message .= "1. OK\n";
-			$message .= "2. Ditarik\n";
-			$message .= "3. Rusak\n";
-		}else{
-			$parameters = explode("#",$params);
-			$tid="";
-			$agen="";
-			//cek kelengkapan parameter
-			if (count($parameters)!=3){
-				$message = "Kelengkapan parameter belum sesuai\n";
-				goto langsungan;
-			}
-			//cek parameter kategori
-			$result = DB::table('updatebrilink')->where('kategori',trim($parameters[0]))->get();
-			if ($result->count()==0){
-				$message = "Parameter (1) kategori tidak sesuai dengan yang ada di sistem\n";
-				goto langsungan;
-			}
-			//cek parameter tid
-			$result = DB::table('updatebrilink')->where('tid',trim($parameters[1]))->get();
-			if ($result->count()==0){
-				$message = "Parameter (2) tid di luar daftar yang ada di sistem\n";
-				goto langsungan;
-			}else{
-				if($result[0]->status!=""){
-					$message = "TID sudah pernah di-update\n";
-					goto langsungan;
-				}else{
-					$tid = $result[0]->tid;
-					$agen = $result[0]->agen;
-					$merk = $result[0]->merk;
-				}
-			}
-			//cek parameter status
-			$status = strtolower(trim($parameters[2]));
-			if ($status != "ok" && $status != "ditarik" && $status != "rusak"){
-				$message = "Parameter (3) status di luar daftar (OK, Ditarik, Rusak)\n";
-				goto langsungan;
-			}
-			$response = DB::update('update updatebrilink set status = ? where tid = ?', array($status, trim($parameters[1])));
-			$message = "Data berhasil diupdate\n";
-			$message .= "TID ".$tid."\n";
-			$message .= "Nama ".$agen."\n";
-			$message .= "Merk ".$merk."\n";
-			$message .= "Status ".strtoupper($status)."\n";
-		}
-
-		langsungan :
-		$response = Telegram::sendMessage([
-			'chat_id' => $chatid,
-			'text' => $message
-		]);
-	}
-
-	public function sampleTIDWebhook($chatid){
-		$result = DB::table('updatebrilink')->where('status','')->get();
-		$message = "DAFTAR SAMPEL 5 TID YANG BELUM DIUPDATE\n\n";
-		$message .= $result[0]->tid."\n";
-		$message .= $result[1]->tid."\n";
-		$message .= $result[2]->tid."\n";
-		$message .= $result[3]->tid."\n";
-		$message .= $result[4]->tid."\n";
-		// for ($i=0;$i<5;$i++)
-			// $message .= $result[$i]->tid."\n";
-		// }
-		$response = Telegram::sendMessage([
-			'chat_id' => $chatid,
-			'text' => $message
-		]);
-	}
+	//   public function showVersiBrilinkWebhook($chatid, $params){
+	// 	$message="_";
+	// 	//menampilkan help bila command tidak disertai parameter
+	// 	if ($params ==""){
+	// 		$message = "Update Versi Brilink\n\n";
+	// 		$message .= "Command untuk mengupdate status update versi dengan format sbb :\n";
+	// 		$message .= "/versibrilink A#B#C\n\n";
+	// 		$message .= "huruf A diisi dengan :\n";
+	// 		$message .= "1. plnh2h \n";
+	// 		$message .= "\n";
+	// 		$message .= "huruf B diisi dengan tid \n\n";
+	// 		$message .= "huruf C diisi dengan status :\n";
+	// 		$message .= "1. OK\n";
+	// 		$message .= "2. Ditarik\n";
+	// 		$message .= "3. Rusak\n";
+	// 	}else{
+	// 		$parameters = explode("#",$params);
+	// 		$tid="";
+	// 		$agen="";
+	// 		//cek kelengkapan parameter
+	// 		if (count($parameters)!=3){
+	// 			$message = "Kelengkapan parameter belum sesuai\n";
+	// 			goto langsungan;
+	// 		}
+	// 		//cek parameter kategori
+	// 		$result = DB::table('updatebrilink')->where('kategori',trim($parameters[0]))->get();
+	// 		if ($result->count()==0){
+	// 			$message = "Parameter (1) kategori tidak sesuai dengan yang ada di sistem\n";
+	// 			goto langsungan;
+	// 		}
+	// 		//cek parameter tid
+	// 		$result = DB::table('updatebrilink')->where('tid',trim($parameters[1]))->get();
+	// 		if ($result->count()==0){
+	// 			$message = "Parameter (2) tid di luar daftar yang ada di sistem\n";
+	// 			goto langsungan;
+	// 		}else{
+	// 			if($result[0]->status!=""){
+	// 				$message = "TID sudah pernah di-update\n";
+	// 				goto langsungan;
+	// 			}else{
+	// 				$tid = $result[0]->tid;
+	// 				$agen = $result[0]->agen;
+	// 				$merk = $result[0]->merk;
+	// 			}
+	// 		}
+	// 		//cek parameter status
+	// 		$status = strtolower(trim($parameters[2]));
+	// 		if ($status != "ok" && $status != "ditarik" && $status != "rusak"){
+	// 			$message = "Parameter (3) status di luar daftar (OK, Ditarik, Rusak)\n";
+	// 			goto langsungan;
+	// 		}
+	// 		$response = DB::update('update updatebrilink set status = ? where tid = ?', array($status, trim($parameters[1])));
+	// 		$message = "Data berhasil diupdate\n";
+	// 		$message .= "TID ".$tid."\n";
+	// 		$message .= "Nama ".$agen."\n";
+	// 		$message .= "Merk ".$merk."\n";
+	// 		$message .= "Status ".strtoupper($status)."\n";
+	// 	}
+  //
+	// 	langsungan :
+	// 	$response = Telegram::sendMessage([
+	// 		'chat_id' => $chatid,
+	// 		'text' => $message
+	// 	]);
+	// }
+  //
+	// public function sampleTIDWebhook($chatid){
+	// 	$result = DB::table('updatebrilink')->where('status','')->get();
+	// 	$message = "DAFTAR SAMPEL 5 TID YANG BELUM DIUPDATE\n\n";
+	// 	$message .= $result[0]->tid."\n";
+	// 	$message .= $result[1]->tid."\n";
+	// 	$message .= $result[2]->tid."\n";
+	// 	$message .= $result[3]->tid."\n";
+	// 	$message .= $result[4]->tid."\n";
+	// 	// for ($i=0;$i<5;$i++)
+	// 		// $message .= $result[$i]->tid."\n";
+	// 	// }
+	// 	$response = Telegram::sendMessage([
+	// 		'chat_id' => $chatid,
+	// 		'text' => $message
+	// 	]);
+	// }
 
 	public function showGeneralNotif($telegram, $chatid, $info, $category){
 		$message = $category."\n";
@@ -337,43 +337,43 @@ class ApiController extends Controller
 		$messageId = $response->getMessageId();
 	}
 
-	public function sensusEdc($param, $chatid){
-		$params = explode("#",$param);
-
-		if ($param ==""){
-			$message = "Sensus EDC\n\n";
-			$message .= "Cara melakukan sensus EDC :\n";
-			$message .= "/sensusedc A#B#C#D\n\n";
-			$message .= "huruf A diisi dengan TID :\n";
-			$message .= "\n";
-			$message .= "huruf B diisi dengan SN EDC \n\n";
-			$message .= "huruf C diisi dengan Nomor Hape Simcard (08xx) \n";
-			$message .= "huruf D diisi dengan merk :\n";
-			goto langsungan;
-		}else{
-			if(count($params)<4){
-				$message = "Kelengkapan parameter belum sesuai\n";
-				goto langsungan;
-			}
-
-			$result = DB::table('sensusedc')->where('tid',trim($params[0]))->get();
-			if ($result->count()!=0){
-				$message = "TID sudah pernah di-insert\n";
-				goto langsungan;
-			}
-		}
-
-		$result = DB::table('sensusedc')->insert(['tid'=>$params[0],'sn'=>$params[ 1],'simcard'=>$params[2],'merk'=>$params[3]]);
-		$message = "Data berhasil terinput\n";
-		$message .= "TID ".$params[0]."\n";
-		$message .= "SN EDC ".strtoupper($params[1])."\n";
-		$message .= "Simcard ".strtoupper($params[2])."\n";
-		$message .= "Merk ".strtoupper($params[3])."\n";
-
-		langsungan :
-		$response = Telegram::sendMessage([
-			'chat_id' => $chatid,
-			'text' => $message
-		]);
-	}
+	// public function sensusEdc($param, $chatid){
+	// 	$params = explode("#",$param);
+  //
+	// 	if ($param ==""){
+	// 		$message = "Sensus EDC\n\n";
+	// 		$message .= "Cara melakukan sensus EDC :\n";
+	// 		$message .= "/sensusedc A#B#C#D\n\n";
+	// 		$message .= "huruf A diisi dengan TID :\n";
+	// 		$message .= "\n";
+	// 		$message .= "huruf B diisi dengan SN EDC \n\n";
+	// 		$message .= "huruf C diisi dengan Nomor Hape Simcard (08xx) \n";
+	// 		$message .= "huruf D diisi dengan merk :\n";
+	// 		goto langsungan;
+	// 	}else{
+	// 		if(count($params)<4){
+	// 			$message = "Kelengkapan parameter belum sesuai\n";
+	// 			goto langsungan;
+	// 		}
+  //
+	// 		$result = DB::table('sensusedc')->where('tid',trim($params[0]))->get();
+	// 		if ($result->count()!=0){
+	// 			$message = "TID sudah pernah di-insert\n";
+	// 			goto langsungan;
+	// 		}
+	// 	}
+  //
+	// 	$result = DB::table('sensusedc')->insert(['tid'=>$params[0],'sn'=>$params[ 1],'simcard'=>$params[2],'merk'=>$params[3]]);
+	// 	$message = "Data berhasil terinput\n";
+	// 	$message .= "TID ".$params[0]."\n";
+	// 	$message .= "SN EDC ".strtoupper($params[1])."\n";
+	// 	$message .= "Simcard ".strtoupper($params[2])."\n";
+	// 	$message .= "Merk ".strtoupper($params[3])."\n";
+  //
+	// 	langsungan :
+	// 	$response = Telegram::sendMessage([
+	// 		'chat_id' => $chatid,
+	// 		'text' => $message
+	// 	]);
+	// }
 }

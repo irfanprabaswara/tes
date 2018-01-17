@@ -11,7 +11,7 @@
 |
 */
 
-//use Telegram;
+// use Telegram;
 
 Route::get('/', function () {
     return view('welcome');
@@ -48,6 +48,13 @@ Route::get('/unsetwebhook', 'ApiController@unsetWebhook');
 Route::post('webhook', 'TelegramController@webhook');
 
 Route::get('respond', 'TelegramController@respond');
+
+// $updates = Telegram::getWebhookUpdates();
+// Route::post('/<token>/webhook', function () {
+//     $updates = Telegram::getWebhookUpdates();
+//
+//     return 'ok';
+// });
 
 // Route::post('/webhook', function () {
 	// $updates = Telegram::getWebhookUpdates();
