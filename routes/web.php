@@ -25,7 +25,7 @@ Route::get('/sendMsg', function () {
     return view('sendMsg');
 });
 
-Route::get('/me', 'TelegramController@me');
+Route::get('/me', 'ApiController@me');
 
 Route::get('update', 'ApiController@updates');
 
@@ -41,16 +41,18 @@ Route::get('capture', 'BrowsershotController@capturePage');
 
 // Route::get('/setwebhook', 'ApiController@setWebhook');
 
-Route::get('/unsetwebhook', 'ApiController@unsetWebhook');
+Route::get('/unset', 'ApiController@unsetWebhook');
 
 // Route::post('webhook', 'ApiController@webhook');
-Route::get('setwebhook', 'TelegramController@setWebhook');
-Route::post('405325770:AAG49XI9pWQSpi5OsC0hz_muUFj0QmFjndM/webhook', 'TelegramController@setWebhook');
+Route::get('/set', 'ApiController@setWebhook');
+// Route::post('405325770:AAG49XI9pWQSpi5OsC0hz_muUFj0QmFjndM/webhook', 'TelegramController@setWebhook');
 
 //PERLU DIPERHATIKAN
-// Route::post('webhook', 'TelegramController@webhook');
+Route::post('webhook', 'tes@webhook');
 
-Route::get('respond', 'tes@respond');
+// Route::get('respond', 'tes@respond');
+
+// Route::get('respond', 'loop@respond');
 
 // $updates = Telegram::getWebhookUpdates();
 // Route::post('/<token>/webhook', function () {

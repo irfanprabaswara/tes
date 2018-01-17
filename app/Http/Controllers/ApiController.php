@@ -31,7 +31,7 @@ class ApiController extends Controller
   //token apaya 405325770:AAG49XI9pWQSpi5OsC0hz_muUFj0QmFjndM
   //PERLU DIPERHATIKAN
 	public function setWebhook(){
-		$response = Telegram::setWebhook(['url' => 'https://418287c1.ngrok.io/webhook',]);
+		$response = Telegram::setWebhook(['url' => 'https://aad81b89.ngrok.io/tes/public/webhook',]);
 		dd($response);
 	}
 
