@@ -34,7 +34,9 @@ class webhook extends Controller
 		$request = Telegram::getWebhookUpdates();//buat ngeget chat
 		$chatid = $request->getMessage()->getChat()->getId();//buat ngeget id pengirim
 		$text = $request->getMessage()->getText();//buat ngeget text
+		// $text = $request['message']['text'];
 		$username = $request->getMessage()->getChat()->getUsername();//buat ngeget username
+		// $username = $request['message']['chat']['username'];
 
 		switch($text) {
 				case $text === '/start':
@@ -48,7 +50,7 @@ class webhook extends Controller
 				default:
 				   // $info = 'I do not understand what you just said. Please choose an option';
 				   // $this->showMenu($chatid, $info);
-          $this->defaultMessage($chatid);
+          $this->defaultMessage($chatid, $text, $username);
 				  break;
 		}
 
@@ -62,14 +64,14 @@ class webhook extends Controller
 			'parse_mode' => 'markdown',
 			'text' => $message
 		]);
-		$response = Telegram::sendMessage([
-			'chat_id' => 437329516,
-			'parse_mode' => 'markdown',
-			'text' => "akun : ".$chatid." telah mengirim command /start ke bot anda"
-		]);
+		// $response = Telegram::sendMessage([
+		// 	'chat_id' => 437329516,
+		// 	'parse_mode' => 'markdown',
+		// 	'text' => "akun : ".$chatid." telah mengirim command /start ke bot anda"
+		// ]);
 	}//ini akhir fungsi
 
-  public function defaultMessage($chatid) //ini untuk menampilkan pesan default
+  public function defaultMessage($chatid, $text, $username) //ini untuk menampilkan pesan default
   {
 		$message = "Ini Default Message terbaru";
 		$response = Telegram::sendMessage([
@@ -80,7 +82,7 @@ class webhook extends Controller
 		$response = Telegram::sendMessage([
 			'chat_id' => 437329516,
 			'parse_mode' => 'markdown',
-			'text' => "akun : ".$chatid." telah mengirim pesan ke bot anda"
+			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
 		]);
 	}//ini akhir fungsi
 
