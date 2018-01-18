@@ -39,20 +39,19 @@ Route::get('update', 'ApiController@updates');
 
 Route::get('capture', 'BrowsershotController@capturePage');
 
-// Route::get('/setwebhook', 'ApiController@setWebhook');
-
-Route::get('/unset', 'ApiController@unsetWebhook');
+Route::get('/unset', 'webhook@unsetWebhook');//buat unset webhook
 
 // Route::post('webhook', 'ApiController@webhook');
-Route::get('/set', 'ApiController@setWebhook');
+Route::get('/set', 'webhook@setWebhook');//buat ngeset webhook
+// Route::get('/set', 'ApiController@setWebhook');
 // Route::post('405325770:AAG49XI9pWQSpi5OsC0hz_muUFj0QmFjndM/webhook', 'TelegramController@setWebhook');
 
 //PERLU DIPERHATIKAN
-Route::post('webhook', 'tes@webhook');
+Route::post('webhook', 'webhook@webhook');
 
 // Route::get('respond', 'tes@respond');
 
-// Route::get('respond', 'loop@respond');
+Route::get('respond', 'loop@respond');
 
 // $updates = Telegram::getWebhookUpdates();
 // Route::post('/<token>/webhook', function () {
