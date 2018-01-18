@@ -31,9 +31,10 @@ class webhook extends Controller
 
 	function webhook()
 	{//awal func webhook
-		$request = Telegram::getWebhookUpdates();
-		$chatid = $request->getMessage()->getChat()->getId();
-		$text = $request->getMessage()->getText();
+		$request = Telegram::getWebhookUpdates();//buat ngeget chat
+		$chatid = $request->getMessage()->getChat()->getId();//buat ngeget id pengirim
+		$text = $request->getMessage()->getText();//buat ngeget text
+		$username = $request->getMessage()->getChat()->getUsername();//buat ngeget username
 
 		switch($text) {
 				case $text === '/start':
@@ -55,11 +56,16 @@ class webhook extends Controller
 
 	public function showWelcomeMessage($chatid)//ini untuk menampilkan pesan selamat datang
   	{
-		$message = "Sugeng rawuh. Bot Kanwil Yogya siap membantu seadanya";
+		$message = "Semangat PKL guys ^^";
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
 			'parse_mode' => 'markdown',
 			'text' => $message
+		]);
+		$response = Telegram::sendMessage([
+			'chat_id' => 437329516,
+			'parse_mode' => 'markdown',
+			'text' => "akun : ".$chatid." telah mengirim command /start ke bot anda"
 		]);
 	}//ini akhir fungsi
 
@@ -71,12 +77,17 @@ class webhook extends Controller
 			'parse_mode' => 'markdown',
 			'text' => $message
 		]);
+		$response = Telegram::sendMessage([
+			'chat_id' => 437329516,
+			'parse_mode' => 'markdown',
+			'text' => "akun : ".$chatid." telah mengirim pesan ke bot anda"
+		]);
 	}//ini akhir fungsi
 
 	public function showDriverList($chatid){//untuk menampilkan Driver beserta statusnya
 		$message="";
 		$result = DB::table('driver')->get();
-		$message = "*DAFTAR DRIVER KANWIL* \n\n";
+		$message = "*DAFTAR DRIVER KANWIL YOGYAKARTA* \n\n";
 		if ($result->count()>0){
 			for ($i=0;$i<$result->count();$i++){
 				$message .= "*".$result[$i]->nama."*\n";
