@@ -48,6 +48,9 @@ class loop extends Controller
       case $text === '/driver':
         $this->showDriverList($chatid);
         break;
+      case $text==='/tiket':
+        $this->showTiketKeyboard($chatid);
+        break;
     //   case $text === '/calendar':
     //     $month_input = date("Y-m");
     //     $callback_query_id=0;
@@ -173,6 +176,35 @@ class loop extends Controller
 			'text' => $message
 		]);
 	}
+
+  public function showTiketKeyboard($chatid)
+	{//awal dari fungsi
+		// $tiket=[];
+		// $keytiket = [];
+		// $tes=[];
+		$message="";
+		$result = DB::table('pemesanan')->where(['status'=>""])->get();
+		$message = "*PILIH TIKET YANG AKAN DIPROSES ...* \n\n";
+
+		if ($result->count()>0){
+			for ($i=0;$i<$result->count();$i++){
+				$message .= "*NOMOR TIKET =".$result[$i]->nomer_tiket."*\n";
+      }//end for
+		}//end if
+    //
+		// $reply_markup = Telegram::replyKeyboardMarkup([
+    //   'keyboard' => $tiket,
+    //   'resize_keyboard' => true,
+		// 	'one_time_keyboard' => true
+		// ]);
+
+		$response = Telegram::sendMessage([
+		  'chat_id' => $chatid,
+		  'parse_mode' => 'markdown',
+      'text'=>$message
+		  // 'reply_markup' => $reply_markup
+		]);
+	}//akhir dari fungsi
 
 	// public function showUpdateDriver($chatid){
 	// 	$driver = [];

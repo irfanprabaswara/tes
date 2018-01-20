@@ -17,21 +17,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 //PERLU DIPERHATIKAN
 
-class tes extends Controller
-{//PERLU DIPERHATIKAN new Api
-	// <meta name="csrf-token" content="{{ csrf_token() }}">
-	public function me()
-	{
-		$telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
-		$response = $telegram->getMe();
-		return $response;
+class cek extends Controller
+{//awal kelas
+
+	public function setWebhook(){
+		$response = Telegram::setWebhook(['url' => 'https://caa49752.ngrok.io/tes/public/webhook',]);
+		dd($response);
 	}
 
-	public function updates()
+	public function unsetWebhook()
 	{
-		$telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
-		$response = $telegram->getUpdates();
-		return $response;
+		$response = Telegram::removeWebhook();
+		dd($response);
 	}
 
 	public function showMenu($chatid, $info = null){
@@ -66,109 +63,9 @@ class tes extends Controller
     ]);
 	}
 
-// 	public function respond(){
-//     $telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
-//     $response = $telegram->getUpdates();
-//     $request = collect(end($response));
-//
-//     $chatid = $request['message']['chat']['id'];
-//     $text = $request['message']['text'];
-//
-//     switch($text) {
-//         case '/start':
-//             $this->showMenu($chatid);
-//             break;
-//         case '/menu':
-//             $this->showMenu($chatid);
-//             break;
-//         case '/website':
-//             $this->showWebsite($chatid);
-//             break;
-//         case '/contact';
-//             $this->showContact($chatid);
-//             break;
-//         default:
-//             $info = 'I do not understand what you just said. Please choose an option';
-//             $this->showMenu($chatid, $info);
-//     }
-// }
-//
-
-
-
-
-		public function respond(){
-		$telegram = new Api (env('TELEGRAM_BOT_TOKEN'));
-		$request = Telegram::getUpdates();
-		$request = collect(end($request));
-		$callback_query_id = 0;
-		$chatid = $request['message']['chat']['id'];
-		$text = $request['message']['text'];
-		// if($request->isType('callback_query')){
-			// $query = $request->getCallbackQuery();
-			// $text = $query->getData();
-			// $chatid = $query->getMessage()->getChat()->getId();
-			// $callback_query_id = $query->getId();
-		// }else{
-			// $chatid = $request->getMessage()->getChat()->getId();
-			// $text = $request->getMessage()->getText();
-			// $callback_query_id = 0;
-		// }
-		switch($text) {
-			case $text === '/calendar':
-				$month_input = date("Y-m");
-				$callback_query_id=0;
-				$this->showCalendar($chatid, $month_input, $callback_query_id);
-				//$response_txt .= "Mengenal command dan berhasil merespon\n";
-				break;
-			case $text === '/updatedriver':
-				$this->showUpdateDriver($chatid);
-				//$response_txt .= "Mengenal command dan berhasil merespon\n";
-				break;
-			case substr($text,0,7) === '/upddrv':
-				$listparams = substr($text,7);
-				$params = explode('#',$listparams);
-				unset($params[0]);
-				$params = array_values($params);
-
-				if(count($params)==1){
-					$this->confirmDriver($chatid, $params);
-				}elseif(count($params)==2){
-					if($params[1]=="set"){
-						$this->setPic($chatid, $params);
-					}else{
-						$this->releaseDriver($chatid, $params);
-					}
-				}elseif(count($params)==3){
-					// $callback_query_id=0;
-					$month_input = date("Y-m");
-					$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
-				}elseif(count($params)==4){
-					// $callback_query_id=0;
-					$this->saveTheUpdates($chatid, $params);
-				}
-				//$response_txt .= "Mengenal command dan berhasil merespon\n";
-				break;
-			// case $text === '/calendar':
-				// $month_input = date("Y-m");
-				// $callback_query_id=0;
-				// $this->showCalendar($chatid, $month_input, $callback_query_id);
-				// //$response_txt .= "Mengenal command dan berhasil merespon\n";
-				// break;
-			case substr($text,0,6) === 'change':
-				$month_input = substr($text,6,7);
-				$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
-				break;
-			default:
-			   $info = 'I do not understand what you just said. Please choose an option';
-			   $this->showMenu($chatid, $info);
-			   break;
-		}
-		return $request;
-	}
-	//public function webhook(Request $request){
-	public function webhook(){
-		try{
+	public function webhook()
+  {//awal fungsi webhook
+		try{//awal try
 			$request = Telegram::getWebhookUpdates();
 
 			if($request->isType('callback_query')){
@@ -177,13 +74,14 @@ class tes extends Controller
 				$chatid = $query->getMessage()->getChat()->getId();
 				$messageid = $query->getMessage()->getMessageId();
 				$callback_query_id = $query->getId();
-			}else{
+			}else{//mulai else
 				$chatid = $request->getMessage()->getChat()->getId();
 				$text = $request->getMessage()->getText();
 				$callback_query_id = 0;
-			}
+			}//end else
 
-			switch($text) {
+			switch($text)
+      {//mulai switch
 				case $text === '/start':
 					$this->showWelcomeMessage($chatid);
 					break;
@@ -227,12 +125,7 @@ class tes extends Controller
 
 					//$response_txt .= "Mengenal command dan berhasil merespon\n";
 					break;
-				// case $text === '/calendar':
-					// $month_input = date("Y-m");
-					// $callback_query_id=0;
-					// $this->showCalendar($chatid, $month_input, $callback_query_id);
-					// //$response_txt .= "Mengenal command dan berhasil merespon\n";
-					// break;
+
 				case substr($text,0,6) === 'change':
 					$month_input = substr($text,6,7);
 					$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
@@ -241,27 +134,22 @@ class tes extends Controller
 				   $info = 'I do not understand what you just said. Please choose an option';
 				   $this->showMenu($chatid, $info);
 				   break;
-			}
-		}catch(Exception $e){
-			//PERLU DIPERHATIKAN CHAT ID 437329516
-			Telegram::sendMessage([
-				'chat_id' => 437329516,
-				'text' => "Reply ".$e->getMessage()
-			]);
-		}
-		return 'ok';
+			}//end switch
+		}//end try
 	}
 
-	public function showWelcomeMessage($chatid){
+	public function showWelcomeMessage($chatid)
+  {//awal fungsi
 		$message = "Sugeng rawuh. Bot Kanwil Yogya siap membantu seadanya";
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
 			'parse_mode' => 'markdown',
 			'text' => $message
 		]);
-	}
+	}//akhir fungsi
 
-	public function showDriverList($chatid){
+	public function showDriverList($chatid)//fungsi buat nampilin data driver
+  {//awal fungsi
 		$message="";
 		$result = DB::table('driver')->get();
 		$message = "*DAFTAR DRIVER KANWIL* \n\n";
@@ -274,17 +162,18 @@ class tes extends Controller
 					$message .= "Status : ".$result[$i]->status."\n";
 				}
 				$message .= "\n";
-			}
-		}
+			}//end for
+		}//end if
 
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
 			'parse_mode' => 'markdown',
 			'text' => $message
 		]);
-	}
+	}//akhir fungsi
 
-	public function showMenu($chatid, $info = null){
+	public function showMenu($chatid, $info = null)//fungsi buat nampilin menu
+  {//awal fungsi
 		// this will create keyboard buttons for users to touch instead of typing commands
 		$inlineLayout = [[
 			Keyboard::inlineButton(['text' => 'Website', 'callback_data' => 'website']),
@@ -302,42 +191,45 @@ class tes extends Controller
 			'text' => 'Keyboard',
 			'reply_markup' => $keyboard
 		]);
-	}
+	}//akhir fungsi
 
-	public function showWebsite($chatid, $cbid){
+	public function showWebsite($chatid, $cbid)//buat nampilin website
+  {//awal fungsi
 	    if($cbid != 0){
 			$responses = Telegram::answerCallbackQuery([
 				'callback_query_id' => $cbid,
 				'text' => '',
 				'show_alert' => false
 			]);
-		}
+    }end if
 		$message = 'https://jqueryajaxphp.com';
 
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
 			'text' => $message
 		]);
-	}
+	}//akhir fungsi
 
-	public function showContact($chatid, $cbid){
+	public function showContact($chatid, $cbid)//fungsi buat nampilin contact
+  {//awal fungsi
 		if($cbid != 0){
 			$responses = Telegram::answerCallbackQuery([
 				'callback_query_id' => $cbid,
 				'text' => '',
 				'show_alert' => false
 			]);
-		}
+		}//end if
 
-		$message = 'info@jqueryajaxphp.com';
+		$message = 'silakah hubungi admin kami di @irfanprabaswara';
 
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
 			'text' => $message
 		]);
-	}
+	}//akhir fungsi
 
-	public function showUpdateDriver($chatid){
+	public function showUpdateDriver($chatid)//fungsi buat update driver
+  {//awal fungsi
 		$driver = [];
 		$keyboard = [];
 		$message="";
@@ -354,14 +246,14 @@ class tes extends Controller
 					$driver[] = $driverperrow;
 					$driverperrow = [];
 					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/upddrv#'.$result[$i]->Id]);
-				}
+				}//end else
 				$col++;
-			}
-		}
+			}//end for
+		}//end if
 		if($col>0){
 			$col=0;
 			$driver[] = $driverperrow;
-		}
+		}//end if
 
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
@@ -375,9 +267,10 @@ class tes extends Controller
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
 		]);
-	}
+	}//akhir fungsi
 
-	public function confirmDriver($chatid, $params){
+	public function confirmDriver($chatid, $params)
+  {//awal fungsi
 		$message="";
 		$keyboard = [];
 		$driverid = $params[0];
@@ -390,7 +283,7 @@ class tes extends Controller
 			}else{
 				$message .= "saat ini kosong \n";
 				$keyboardperrow[] = Keyboard::inlineButton(['text' => 'Set Penugasan?', 'callback_data' => '/upddrv#'.$params[0]."#set"]);
-			}
+			}//akhir else
 			$keyboard[] = $keyboardperrow;
 			$reply_markup = Telegram::replyKeyboardMarkup([
 				'resize_keyboard' => true,
@@ -402,25 +295,28 @@ class tes extends Controller
 				'text' => $message,
 				'reply_markup' => $reply_markup
 			]);
-		}else{
+		}//akhir if
+    else{
 			$response = Telegram::sendMessage([
 				'chat_id' => $chatid,
 				'text' => "Data Driver salah"
 			]);
-		}
+		}//akhir else
 		$messageId = $response->getMessageId();
-	}
+	}//akhir fungsi
 
-	public function releaseDriver($chatid, $params){
+	public function releaseDriver($chatid, $params)
+  {//awal fungsi
 		$result = DB::table('driver')->where(['Id'=>$params[0]])->update(['status'=>""]);
 		$message = "Data Driver berhasil terupdate\n";
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
 			'text' => $message
 		]);
-	}
+	}//akhir fungsi
 
-	public function setPic($chatid, $params){
+	public function setPic($chatid, $params)//fungsi buat milih bagian kerja atau PIC
+  {//awal fungsi
 		$message="";
 		$pic = [];
 		$driverid = $params[0];
@@ -436,13 +332,13 @@ class tes extends Controller
 				$pic[] = $picperrow;
 				$picperrow = [];
 				$picperrow[] = Keyboard::inlineButton(['text' => $piclist[$i], 'callback_data' => '/upddrv#'.$params[0]."#".$params[1]."#".$piclist[$i]]);
-			}
+			}//end else
 			$col++;
-		}
+		}//end for
 		if($col>0){
 			$col=0;
 			$pic[] = $picperrow;
-		}
+		}//end if
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
 			'one_time_keyboard' => true,
@@ -455,16 +351,17 @@ class tes extends Controller
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
 		]);
-	}
+	}//akhir fungsi
 
-	public function showCalendar($chatid, $params, $month_input, $cbid){
+	public function showCalendar($chatid, $params, $month_input, $cbid)
+  {//awal fungsi
 		if($cbid != 0){
 			$responses = Telegram::answerCallbackQuery([
 				'callback_query_id' => $cbid,
 				'text' => '',
 				'show_alert' => false
 			]);
-		}
+		}//end if
 
 		$message = "*PILIH TANGGAL PENUGASAN*\n";
 		$message .= DateTime::createFromFormat('Y-m-d',$month_input."-01")->format("F Y")." \n";
@@ -482,16 +379,17 @@ class tes extends Controller
 		  'parse_mode' => 'markdown',
 		  'reply_markup' => $reply_markup
 		]);
-	}
+	}//akhir fungsi
 
-	public function changeCalendar($chatid, $messageid, $month_input, $cbid){
+	public function changeCalendar($chatid, $messageid, $month_input, $cbid)
+  {//awal fungsi
 		if($cbid != 0){
 			$responses = Telegram::answerCallbackQuery([
 				'callback_query_id' => $cbid,
 				'text' => '',
 				'show_alert' => false
 			]);
-		}
+		}//end if
 
 		$message = "";
 		$message .= DateTime::createFromFormat('Y-m-d',$month_input."-01")->format("F Y")." \n";
@@ -509,9 +407,10 @@ class tes extends Controller
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
 		]);
-	}
+	}//akhir fungsi
 
-	public function createCalendar($month_input, $params){
+	public function createCalendar($month_input, $params)//fungsi buat bikin kalender
+  {//awal fungsi
 		$calendar = [];
 		$keyboard = [];
 		$maxdate = date("t", strtotime($month_input."-01"));
@@ -527,11 +426,11 @@ class tes extends Controller
 				}else{
 					$calendarperrow[] = Keyboard::inlineButton(['text' => substr("0".strval($date),-2), 'callback_data' => '/upddrv#'.$params[0]."#".$params[1]."#".$params[2]."#".$month_input."-".substr("0".strval($date),-2)]);
 					$date++;
-				}
-			}
+				}//end else
+			}//end for
 			$calendar[] = $calendarperrow;
 			$row++;
-		}
+		}//end while
 
 		$eek = trim($month_input)."-01";
 		$prev_date = DateTime::createFromFormat('Y-m-d',$eek)->sub(new DateInterval('P1M'))->format("Y-m");
@@ -544,9 +443,10 @@ class tes extends Controller
 		$calendar[] = $calendarperrow;
 
 		return $calendar;
-	}
+	}//akhir fungsi
 
-	public function setLocation($chatid, $params){
+	public function setLocation($chatid, $params)//fungsi buat milih tujuan kerja
+  {//awal fungsi
 		$message="";
 		$location = [];
 		$driverid = $params[0];
@@ -562,13 +462,13 @@ class tes extends Controller
 				$location[] = $locationperrow;
 				$location = [];
 				$location[] = Keyboard::inlineButton(['text' => $locationlist[$i], 'callback_data' => '/upddrv#'.$params[0]."#".$params[1]."#".$params[2]."#".$params[3]."#".$locationlist[$i]]);
-			}
+			}//end else
 			$col++;
-		}
+		}//end for
 		if($col>0){
 			$col=0;
 			$location[] = $locationperrow;
-		}
+		}//end if
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
 			'one_time_keyboard' => true,
@@ -581,9 +481,10 @@ class tes extends Controller
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
 		]);
-	}
+	}//akhir fungsi
 
-	public function saveTheUpdates($chatid, $params){
+	public function saveTheUpdates($chatid, $params)
+  {//awal fungsi
 		$status="";
 		if($params[1]=="set"){
 			$status= "Terpakai";
@@ -595,7 +496,7 @@ class tes extends Controller
 			'chat_id' => $chatid,
 			'text' => $message
 		]);
-	}
+	}//akhir fungsi
 
-}
+}//akhir kelas
 ?>

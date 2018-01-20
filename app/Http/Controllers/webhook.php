@@ -19,7 +19,7 @@ class webhook extends Controller
 {//awal kelas
 	public function setWebhook()
   	{
-		$response = Telegram::setWebhook(['url' => 'https://c4d54cdd.ngrok.io/tes/public/webhook',]);
+		$response = Telegram::setWebhook(['url' => 'https://a80c55e2.ngrok.io/tes/public/webhook',]);
 		dd($response);
 	}
 
@@ -37,9 +37,18 @@ class webhook extends Controller
 		// $text = $request['message']['text'];
 		$username = $request->getMessage()->getChat()->getUsername();//buat ngeget username
 		// $username = $request['message']['chat']['username'];
-		$keyboard = [//ini buat bikin keyboard angka
-				['/driver'],['/start'],['/website'],['/contact'],['/tiket'],['/hideKeyboard']
+		$keyboard = [//ini buat bikin keyboard menu
+				['/driver'],['/start'],['/website'],['/contact'],['/tiket'],['/hideKeyboard'],['/pesandriver']
 		];//ini akhir dari keyboard
+		$keypic=[//ini buat keyboard pic
+				['LOG','SDM','MRK','LEGAL'],
+				['OJL','ECH','KONSUMER','AO'],
+				['BIT','ARK','ADK','RPKB'],
+				['EBK','PRG','DJS','BRILINK'],
+				['RTL','MKR','WPO','WPB1'],
+				['WPB2','WPB3','WPB4','PINWIL'],
+				['KANPUS','PIHAK LUAR','LAIN-LAIN']
+		];//ini akhir dari keyboard PIC
 
 		switch($text) {
 				case $text === '/start':
@@ -63,6 +72,9 @@ class webhook extends Controller
 				case $text==='/tiket':
 					$this->showTiket($chatid);
 					break;
+				case $text==='/pesandriver':
+					$this->pesanDriver($chatid, $keypic);
+					break;
 				// case $text==='/button':
 				// 	$this->showMenuButton($chatid);
 				// 	break;
@@ -80,8 +92,35 @@ class webhook extends Controller
 
 	}//akhir function webhook
 
+	public function pesanDriver($chatid, $keypic) //ini fungsi memesan driver
+	{//ini awal fungsi
+		$reply_markup = Telegram::replyKeyboardMarkup([//ini buat menampilkan Keyboard
+		'keyboard' => $keypic,
+		'resize_keyboard' => true,
+		'one_time_keyboard' => true//ini biar keyboardnya tampil sekali aja
+		]);
+
+		$response = Telegram::sendMessage([
+		'chat_id' => $chatid,
+		'text' => 'Silakan pilih bagian kerja anda ...',
+		'reply_markup' => $reply_markup
+		]);
+
+		// $this->temp1($chatid,$text)
+	}//ini akhir fungsi
+
+	// public function temp1($chat_id,$text)
+	// {//ini awal fungsi
+	// 	$temp=$text;
+	// 	$message= "Bagian anda adalah : ".$temp;
+	// 	$response=Telegram::sendMessage([
+	// 		'chat_id'=>$chatid,
+	// 		'text'=>$message
+	// 	]);
+	// }//ini akhir fungsi
+
 	public function showWelcomeMessage($chatid)//ini untuk menampilkan pesan selamat datang
-  	{
+  {//ini awal fungsi
 		$message = "Semangat PKL guys ^^";
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
@@ -182,6 +221,55 @@ class webhook extends Controller
 		]);
 	}//akhir fungsi showContact
 
+	// $reply_markup = Telegram::replyKeyboardMarkup([//ini buat menampilkan Keyboard
+	// 'keyboard' => $keyboard,
+	// 'resize_keyboard' => true,
+	// 'one_time_keyboard' => true//ini biar keyboardnya tampil sekali aja
+	// ]);
+  //
+	// $response = Telegram::sendMessage([
+	// 'chat_id' => $chatid,
+	// 'text' => 'Silakan pilih menu yang anda inginkan ...',
+	// 'reply_markup' => $reply_markup
+	// ]);
+
+	// public function showTiketKeyboard($chatid)
+	// {//awal dari fungsi
+	// 	$tiket=[];
+	// 	$keytiket = [];
+	// 	$tes=[];
+	// 	$message="";
+	// 	$result = DB::table('pemesanan')->where(['status'=>""])->get();
+	// 	$message = "*PILIH TIKET YANG AKAN DIPROSES ...* \n\n";
+	// 	$max_col = 3;
+	// 	$col =0;
+  //
+	// 	if ($result->count()>0){
+	// 		for ($i=0;$i<$result->count();$i++){
+	// 			$keytiket[] = $tes[['text' => $result[$i]->nama]];
+	// 			}//end else
+	// 			$col++;
+	// 		}//end for
+	// 	}//end if
+	// 	if($col>0){
+	// 		$col=0;
+	// 		$tiket[] = $keytiket;
+	// 	}//end if
+  //
+	// 	$reply_markup = Telegram::replyKeyboardMarkup([
+	// 		'resize_keyboard' => true,
+	// 		'one_time_keyboard' => true,
+	// 	  'inline_keyboard' => $tiket
+	// 	]);
+  //
+	// 	$response = Telegram::sendMessage([
+	// 	  'chat_id' => $chatid,
+	// 	  'parse_mode' => 'markdown',
+	// 	  'text' => $message,
+	// 	  'reply_markup' => $reply_markup
+	// 	]);
+	// }//akhir dari fungsi
+
 	public function showTiket($chatid)
 	{//awal dari fungsi
 		$message="";
@@ -190,12 +278,9 @@ class webhook extends Controller
 		if ($result->count()>0){
 			for ($i=0;$i<$result->count();$i++){
 				$message .= "*NOMOR TIKET =".$result[$i]->nomer_tiket."*\n";
-				if($result[$i]->status ==""){
-				$message .= "Status : Belum Terkonfirmasi\n";
-				}
 			$message .= "\n";
-			}
-		}
+			}//end for
+		}//end if
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
 			'parse_mode' => 'markdown',
@@ -203,7 +288,7 @@ class webhook extends Controller
 		]);
 	}//akhir dari fungsi
 
-	public function showDriverList($chatid)
+	public function showDriverList($chatid)//buat bikin fungsi showDriverList
 	{//untuk menampilkan Driver beserta statusnya
 		$message="";
 		$result = DB::table('driver')->get();
@@ -227,10 +312,10 @@ class webhook extends Controller
 		]);
 	}//ini akhir fungsi
 
-	public function updateDriver()//fungsi untuk mengupdate driver
-	{//awal fungsi
-
-	}//akhir fungsi
+	// public function updateDriver()//fungsi untuk mengupdate driver
+	// {//awal fungsi
+  //
+	// }//akhir fungsi
 }//akhir kelas
 
 ?>
