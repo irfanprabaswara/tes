@@ -31,37 +31,37 @@ class cek extends Controller
 		dd($response);
 	}
 
-	public function showMenu($chatid, $info = null){
-    $message = '';
-    if($info !== null){
-        $message .= $info.chr(10);
-    }
-    $message .=  '/website'.chr(10);
-    $message .= '/contact'.chr(10);
-
-    $response = Telegram::sendMessage([
-        'chat_id' => $chatid,
-        'text' => $message
-    ]);
-	}
-
-	public function showWebsite($chatid){
-    $message = 'http://google.com';
-
-    $response = Telegram::sendMessage([
-        'chat_id' => $chatid,
-        'text' => $message
-    ]);
-	}
-
-	public function showContact($chatid){
-    $message = 'info@jqueryajaxphp.com';
-
-    $response = Telegram::sendMessage([
-        'chat_id' => $chatid,
-        'text' => $message
-    ]);
-	}
+	// public function showMenu($chatid, $info = null){
+  //   $message = '';
+  //   if($info !== null){
+  //       $message .= $info.chr(10);
+  //   }
+  //   $message .=  '/website'.chr(10);
+  //   $message .= '/contact'.chr(10);
+  //
+  //   $response = Telegram::sendMessage([
+  //       'chat_id' => $chatid,
+  //       'text' => $message
+  //   ]);
+	// }
+  //
+	// public function showWebsite($chatid){
+  //   $message = 'http://google.com';
+  //
+  //   $response = Telegram::sendMessage([
+  //       'chat_id' => $chatid,
+  //       'text' => $message
+  //   ]);
+	// }
+  //
+	// public function showContact($chatid){
+  //   $message = 'info@jqueryajaxphp.com';
+  //
+  //   $response = Telegram::sendMessage([
+  //       'chat_id' => $chatid,
+  //       'text' => $message
+  //   ]);
+	// }
 
 	public function webhook()
   {//awal fungsi webhook
@@ -201,7 +201,7 @@ class cek extends Controller
 				'text' => '',
 				'show_alert' => false
 			]);
-    }end if
+    }//end if
 		$message = 'https://jqueryajaxphp.com';
 
 		$response = Telegram::sendMessage([

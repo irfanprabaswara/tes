@@ -19,7 +19,7 @@ class webhook extends Controller
 {//awal kelas
 	public function setWebhook()
   	{
-		$response = Telegram::setWebhook(['url' => 'https://a80c55e2.ngrok.io/tes/public/webhook',]);
+		$response = Telegram::setWebhook(['url' => 'https://cd6ac514.ngrok.io/tes/public/webhook',]);
 		dd($response);
 	}
 
@@ -34,7 +34,6 @@ class webhook extends Controller
 		$request = Telegram::getWebhookUpdates();//buat ngeget chat
 		$chatid = $request->getMessage()->getChat()->getId();//buat ngeget id pengirim
 		$text = $request->getMessage()->getText();//buat ngeget text
-		// $text = $request['message']['text'];
 		$username = $request->getMessage()->getChat()->getUsername();//buat ngeget username
 		// $username = $request['message']['chat']['username'];
 		$keyboard = [//ini buat bikin keyboard menu
@@ -154,7 +153,7 @@ class webhook extends Controller
 		$reply_markup = Telegram::replyKeyboardMarkup([//ini buat menampilkan Keyboard
 		'keyboard' => $keyboard,
 		'resize_keyboard' => true,
-		// 'one_time_keyboard' => true//ini biar keyboardnya tampil sekali aja
+		'one_time_keyboard' => true//ini biar keyboardnya tampil sekali aja
 		]);
 
 		$response = Telegram::sendMessage([
@@ -175,12 +174,7 @@ class webhook extends Controller
 			'reply_markup' => $reply_markup
 		]);
 }//akhir fungsi
-	// public function getReply($chatid, $text)//ini fungsi buat ngeget reply
-	// {//ini awal fungsi
-	// 	if ($text===) {
-	// 		# code...
-	// 	}
-	// }//ini akhir fungsi
+
 
 	// public function showMenuButton($chatid)//ini untuk buat fungsi showMenu, MASIH BELUM BISA MERESPON
 	// {//ini awal fungsi showMenu
