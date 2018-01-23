@@ -19,7 +19,7 @@ class webhook extends Controller
 {//awal kelas
 	public function setWebhook()
   	{
-		$response = Telegram::setWebhook(['url' => 'https://cd6ac514.ngrok.io/tes/public/webhook',]);
+		$response = Telegram::setWebhook(['url' => 'https://4f89d0fb.ngrok.io/tes/public/webhook',]);
 		dd($response);
 	}
 
@@ -31,11 +31,22 @@ class webhook extends Controller
 
 	function webhook()
 	{//awal func webhook
-		$request = Telegram::getWebhookUpdates();//buat ngeget chat
-		$chatid = $request->getMessage()->getChat()->getId();//buat ngeget id pengirim
-		$text = $request->getMessage()->getText();//buat ngeget text
-		$username = $request->getMessage()->getChat()->getUsername();//buat ngeget username
-		// $username = $request['message']['chat']['username'];
+		try {
+			$request = Telegram::getWebhookUpdates();//buat ngeget chat
+
+		if(isset($request['callback_query'])){//buat ngecek apakah yg terbaru itu jenis callback query atau bukan
+      $text = $request['callback_query']['data'];
+      $chatid = $request['callback_query']['message']['chat']['id'];
+			$chatid = $request['callback_query']['message']['chat']['username'];
+      $callback_query_id = $request['callback_query']['id'];
+    }else{//buat kasus $request bukan callback_query
+      $text = $request['message']['text'];
+      $chatid = $request['message']['chat']['id'];
+			$username = $request['message']['chat']['username'];
+      $callback_query_id = 0;
+    }//end else
+
+
 		$keyboard = [//ini buat bikin keyboard menu
 				['/driver'],['/start'],['/website'],['/contact'],['/tiket'],['/hideKeyboard'],['/pesandriver']
 		];//ini akhir dari keyboard
@@ -62,17 +73,20 @@ class webhook extends Controller
 				case $text==='/hideKeyboard':
 					$this->hideKeyboard($chatid);
 					break;
-				case $text==='/website':
-					$this->showWebsite($chatid);
-					break;
-				case $text==='/contact':
-					$this->showContact($chatid);
-					break;
 				case $text==='/tiket':
 					$this->showTiket($chatid);
 					break;
 				case $text==='/pesandriver':
 					$this->pesanDriver($chatid, $keypic);
+					break;
+				case $text==='/latihan':
+					$this->showMenu($chatid);
+					break;
+				case $text==='website':
+					$this->showWebsite($chatid, $callback_query_id);
+					break;
+				case $text==='contact':
+					$this->showContact($chatid, $callback_query_id);
 					break;
 				// case $text==='/button':
 				// 	$this->showMenuButton($chatid);
@@ -88,8 +102,71 @@ class webhook extends Controller
           $this->defaultMessage($chatid, $text, $username);
 				  break;
 		}
-
+		} catch (\Exception $e) {
+			Telegram::sendMessage([
+				'chat_id' => 437329516,
+				'text' => "Reply ".$e->getMessage()
+			]);
+		}//end catch
+		return 'ok';
 	}//akhir function webhook
+
+	public function showMenu($chatid)
+  {//awal fungsi
+ 		// this will create keyboard buttons for users to touch instead of typing commands
+ 		$inlineLayout = [
+ 			 [
+ 					 Keyboard::inlineButton(['text' => 'Website', 'callback_data' => 'website']),
+ 					 Keyboard::inlineButton(['text' => 'Contact', 'callback_data' => 'contact'])
+ 					 // Keyboard::inlineButton(['text' => 'Driver', 'callback_data' => 'driver'])
+ 			 ]
+ 	 ];
+ 	 // create an instance of the replyKeyboardMarkup method
+ 	 $keyboard = Telegram::replyKeyboardMarkup([
+ 			 'inline_keyboard' => $inlineLayout
+ 	 ]);
+ 	 // Now send the message with they keyboard using 'reply_markup' parameter
+ 	 $response = Telegram::sendMessage([
+ 			 'chat_id' => $chatid,
+ 			 'text' => 'Keyboard',
+ 			 'reply_markup' => $keyboard
+ 	 ]);
+  }//akhir fungsi menu
+
+ 	public function showWebsite($chatid, $cbid)
+ 	{//awal fungsi website
+    if($cbid != 0){
+         $responses = Telegram::answerCallbackQuery([
+             'callback_query_id' => $cbid,
+             'text' => '',
+             'show_alert' => false
+         ]);
+     }
+     $message = 'https://jqueryajaxphp.com';
+
+     $response = Telegram::sendMessage([
+         'chat_id' => $chatid,
+         'text' => $message
+     ]);
+ 	}//akhir fungsi Website
+ //
+ public function showContact($chatid, $cbid)
+ {//awal fungsi kontak
+     if($cbid != 0){
+         $responses = Telegram::answerCallbackQuery([
+             'callback_query_id' => $cbid,
+             'text' => '',
+             'show_alert' => false
+         ]);
+     }
+
+     $message = 'info@jqueryajaxphp.com';
+
+     $response = Telegram::sendMessage([
+         'chat_id' => $chatid,
+         'text' => $message
+     ]);
+ 	}//akhir fungsi kontak
 
 	public function pesanDriver($chatid, $keypic) //ini fungsi memesan driver
 	{//ini awal fungsi
@@ -197,23 +274,6 @@ class webhook extends Controller
 	// 	]);
 	// }//ini akhir fungsi
 
-	public function showWebsite($chatid)
-	{//awal dari fungsi Website
-		$message = "Silakan hubungi mbah google.com";
-		$response = Telegram::sendMessage([
-		'chat_id' => $chatid,
-		'text' => $message
-		]);
-	}//akhir fungsi website
-
-	public function showContact($chatid)
-	{//awal fungsi showContact
-		$message = "Silakan hubungi admin kami pada @irfanprabaswara";
-		$response = Telegram::sendMessage([
-				'chat_id' => $chatid,
-				'text' => $message
-		]);
-	}//akhir fungsi showContact
 
 	// $reply_markup = Telegram::replyKeyboardMarkup([//ini buat menampilkan Keyboard
 	// 'keyboard' => $keyboard,

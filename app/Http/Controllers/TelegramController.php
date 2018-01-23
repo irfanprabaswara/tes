@@ -104,7 +104,7 @@ class TelegramController extends Controller
 //     }
 // }
 //
-	
+
 
 
 
@@ -259,7 +259,7 @@ class TelegramController extends Controller
 				'chat_id' => 437329516,
 				'text' => "Reply ".$e->getMessage()
 			]);
-		}
+		}//end catch
 		return 'ok';
 	}
 

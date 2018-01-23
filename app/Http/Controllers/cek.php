@@ -31,42 +31,22 @@ class cek extends Controller
 		dd($response);
 	}
 
-	// public function showMenu($chatid, $info = null){
-  //   $message = '';
-  //   if($info !== null){
-  //       $message .= $info.chr(10);
-  //   }
-  //   $message .=  '/website'.chr(10);
-  //   $message .= '/contact'.chr(10);
-  //
-  //   $response = Telegram::sendMessage([
-  //       'chat_id' => $chatid,
-  //       'text' => $message
-  //   ]);
-	// }
-  //
-	// public function showWebsite($chatid){
-  //   $message = 'http://google.com';
-  //
-  //   $response = Telegram::sendMessage([
-  //       'chat_id' => $chatid,
-  //       'text' => $message
-  //   ]);
-	// }
-  //
-	// public function showContact($chatid){
-  //   $message = 'info@jqueryajaxphp.com';
-  //
-  //   $response = Telegram::sendMessage([
-  //       'chat_id' => $chatid,
-  //       'text' => $message
-  //   ]);
-	// }
-
 	public function webhook()
   {//awal fungsi webhook
 		try{//awal try
 			$request = Telegram::getWebhookUpdates();
+
+			// if(isset($request['callback_query'])){//buat ngecek apakah yg terbaru itu jenis callback query atau bukan
+	    //   $text = $request['callback_query']['data'];
+	    //   $chatid = $request['callback_query']['message']['chat']['id'];
+			// 	$chatid = $request['callback_query']['message']['chat']['username'];
+	    //   $callback_query_id = $request['callback_query']['id'];
+	    // }else{//buat kasus $request bukan callback_query
+	    //   $text = $request['message']['text'];
+	    //   $chatid = $request['message']['chat']['id'];
+			// 	$username = $request['message']['chat']['username'];
+	    //   $callback_query_id = 0;
+	    // }//end else
 
 			if($request->isType('callback_query')){
 				$query = $request->getCallbackQuery();
@@ -74,27 +54,31 @@ class cek extends Controller
 				$chatid = $query->getMessage()->getChat()->getId();
 				$messageid = $query->getMessage()->getMessageId();
 				$callback_query_id = $query->getId();
-			}else{//mulai else
+			}else{
 				$chatid = $request->getMessage()->getChat()->getId();
 				$text = $request->getMessage()->getText();
+				$username=$request->getMessage()->getChat()->getUsername();
 				$callback_query_id = 0;
 			}//end else
 
 			switch($text)
       {//mulai switch
-				case $text === '/start':
+				case $text === '/start'://udah bisa
 					$this->showWelcomeMessage($chatid);
 					break;
-				case $text === 'website':
+				case $text==='/menu'://udah bisa
+					$this->showMenu($chatid);
+					break;
+				case $text === 'website'://udah bisa
 				   $this->showWebsite($chatid, $callback_query_id);
 					   break;
-				case $text === 'contact':
+				case $text === 'contact'://udah bisa
 				   $this->showContact($chatid, $callback_query_id);
 				   break;
-				case $text === '/driver':
+				case $text === '/driver'://udah bisa
 					$this->showDriverList($chatid);
 					break;
-				case $text === '/updatedriver':
+				case $text === '/updatedriver'://Udah bisa
 					$this->showUpdateDriver($chatid);
 					break;
 				case substr($text,0,7) === '/upddrv':
@@ -131,12 +115,16 @@ class cek extends Controller
 					$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
 					break;
 				default:
-				   $info = 'I do not understand what you just said. Please choose an option';
-				   $this->showMenu($chatid, $info);
+				   $this->defaultMessage($chatid, $text, $username);
 				   break;
 			}//end switch
-		}//end try
-	}
+		}catch (\Exception $e) {
+			Telegram::sendMessage([
+				'chat_id' => 437329516,
+				'text' => "Reply ".$e->getMessage()
+			]);
+		}//end catch
+	}//akhir fungsi webhook
 
 	public function showWelcomeMessage($chatid)
   {//awal fungsi
@@ -147,6 +135,21 @@ class cek extends Controller
 			'text' => $message
 		]);
 	}//akhir fungsi
+
+	public function defaultMessage($chatid, $text, $username) //ini untuk menampilkan pesan default
+  {
+		$message = "Mau apa hayo? Bingung? cek /menu";
+		$response = Telegram::sendMessage([
+			'chat_id' => $chatid,
+			// 'parse_mode' => 'markdown',
+			'text' => $message
+		]);
+		$response = Telegram::sendMessage([
+			'chat_id' => 437329516,
+			// 'parse_mode' => 'markdown',
+			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
+		]);
+	}//ini akhir fungsi
 
 	public function showDriverList($chatid)//fungsi buat nampilin data driver
   {//awal fungsi
@@ -176,8 +179,8 @@ class cek extends Controller
   {//awal fungsi
 		// this will create keyboard buttons for users to touch instead of typing commands
 		$inlineLayout = [[
-			Keyboard::inlineButton(['text' => 'Website', 'callback_data' => 'website']),
-			Keyboard::inlineButton(['text' => 'Contact', 'callback_data' => 'contact'])
+			Keyboard::inlineButton(['text' => 'Our site', 'callback_data' => 'website']),
+			Keyboard::inlineButton(['text' => 'Contact Us', 'callback_data' => 'contact'])
 		]];
 
 		// create an instance of the replyKeyboardMarkup method
@@ -202,7 +205,7 @@ class cek extends Controller
 				'show_alert' => false
 			]);
     }//end if
-		$message = 'https://jqueryajaxphp.com';
+		$message = 'Silakan hubungi admin kami di : irfanprabaswara@gmail.com';
 
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
@@ -240,12 +243,12 @@ class cek extends Controller
 		if ($result->count()>0){
 			for ($i=0;$i<$result->count();$i++){
 				if($col<$max_col){
-					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/upddrv#'.$result[$i]->Id]);
+					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/upddrv#'.$result[$i]->id]);
 				}else{
 					$col=0;
 					$driver[] = $driverperrow;
 					$driverperrow = [];
-					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/upddrv#'.$result[$i]->Id]);
+					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/upddrv#'.$result[$i]->id]);
 				}//end else
 				$col++;
 			}//end for
@@ -485,16 +488,23 @@ class cek extends Controller
 
 	public function saveTheUpdates($chatid, $params)
   {//awal fungsi
+		$idDriver=$params[0];
 		$status="";
 		if($params[1]=="set"){
 			$status= "Terpakai";
 		}
 		$result = DB::table('log_driver')->insert(['tanggal'=>date('Y-m-d H:i:s'),'Id'=>$params[0],'pic'=>$params[2],'tanggal_mulai'=>$params[3], 'lokasi'=>$params[4]]);
 		$result = DB::table('driver')->where(['Id'=>$params[0]])->update(['status'=>$status]);
+		$pesan="Hallo, anda telah dipesan oleh bagian ".$params[2]."dengan tujuan ".$params[4]."pada tanggal ".$params[3];
 		$message = "Data Driver berhasil terupdate\n";
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
 			'text' => $message
+		]);
+		$response = Telegram::sendMessage([
+		  'chat_id' => $idDriver,
+		  'parse_mode' => 'markdown',
+		  'text' => $pesan
 		]);
 	}//akhir fungsi
 
