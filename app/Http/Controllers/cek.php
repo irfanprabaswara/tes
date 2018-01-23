@@ -53,6 +53,7 @@ class cek extends Controller
 				$text = $query->getData();
 				$chatid = $query->getMessage()->getChat()->getId();
 				$messageid = $query->getMessage()->getMessageId();
+				$username=$query->getMessage()->getChat()->getUsername();
 				$callback_query_id = $query->getId();
 			}else{
 				$chatid = $request->getMessage()->getChat()->getId();
@@ -76,10 +77,10 @@ class cek extends Controller
 				   $this->showContact($chatid, $callback_query_id);
 				   break;
 				case $text === '/driver'://udah bisa
-					$this->showDriverList($chatid);
+					$this->showDriverList($chatid, $username, $text);
 					break;
 				case $text === '/updatedriver'://Udah bisa
-					$this->showUpdateDriver($chatid);
+					$this->showUpdateDriver($chatid, $username, $text);
 					break;
 				case substr($text,0,7) === '/upddrv':
 					$listparams = substr($text,7);
@@ -104,7 +105,7 @@ class cek extends Controller
 						$this->setLocation($chatid, $params);
 					}elseif(count($params)==5){
 						// $callback_query_id=0;
-						$this->saveTheUpdates($chatid, $params);
+						$this->saveTheUpdates($chatid, $params, $username);
 					}
 
 					//$response_txt .= "Mengenal command dan berhasil merespon\n";
@@ -151,7 +152,7 @@ class cek extends Controller
 		]);
 	}//ini akhir fungsi
 
-	public function showDriverList($chatid)//fungsi buat nampilin data driver
+	public function showDriverList($chatid, $username, $text)//fungsi buat nampilin data driver
   {//awal fungsi
 		$message="";
 		$result = DB::table('driver')->get();
@@ -172,6 +173,12 @@ class cek extends Controller
 			'chat_id' => $chatid,
 			'parse_mode' => 'markdown',
 			'text' => $message
+		]);
+
+		$response = Telegram::sendMessage([
+			'chat_id' => 437329516,
+			// 'parse_mode' => 'markdown',
+			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
 		]);
 	}//akhir fungsi
 
@@ -231,7 +238,7 @@ class cek extends Controller
 		]);
 	}//akhir fungsi
 
-	public function showUpdateDriver($chatid)//fungsi buat update driver
+	public function showUpdateDriver($chatid, $username, $text)//fungsi buat update driver
   {//awal fungsi
 		$driver = [];
 		$keyboard = [];
@@ -269,6 +276,12 @@ class cek extends Controller
 		  'parse_mode' => 'markdown',
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
+		]);
+
+		$response = Telegram::sendMessage([
+			'chat_id' => 437329516,
+			// 'parse_mode' => 'markdown',
+			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
 		]);
 	}//akhir fungsi
 
@@ -486,7 +499,7 @@ class cek extends Controller
 		]);
 	}//akhir fungsi
 
-	public function saveTheUpdates($chatid, $params)
+	public function saveTheUpdates($chatid, $params, $username)
   {//awal fungsi
 		$idDriver=$params[0];
 		$status="";
@@ -495,14 +508,14 @@ class cek extends Controller
 		}
 		$result = DB::table('log_driver')->insert(['tanggal'=>date('Y-m-d H:i:s'),'Id'=>$params[0],'pic'=>$params[2],'tanggal_mulai'=>$params[3], 'lokasi'=>$params[4]]);
 		$result = DB::table('driver')->where(['Id'=>$params[0]])->update(['status'=>$status]);
-		$pesan="Hallo, anda telah dipesan oleh bagian ".$params[2]."dengan tujuan ".$params[4]."pada tanggal ".$params[3];
+		$pesan="Hallo, anda telah dipesan oleh bagian ".$params[2]." dengan tujuan ".$params[4]." pada tanggal ".$params[3].". Silakan hubungi @".$username." untuk waktu keberangkatan";
 		$message = "Data Driver berhasil terupdate\n";
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
 			'text' => $message
 		]);
 		$response = Telegram::sendMessage([
-		  'chat_id' => $idDriver,
+		  'chat_id' => 437329516,//kalo mau ke supirnya tinggal diganti @idDriver
 		  'parse_mode' => 'markdown',
 		  'text' => $pesan
 		]);
