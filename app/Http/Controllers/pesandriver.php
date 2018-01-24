@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 //PERLU DIPERHATIKAN
 
-class tes extends Controller
+class pesandriver extends Controller
 {//awal kelas
 	public function webhook()
 	{
@@ -46,12 +46,12 @@ class tes extends Controller
 				case $text === '/pesan'://udah bisa
 					$this->setPic($chatid);
 					break;
-				case $text==='/tanggal'://udah bisa
-					$this->showCalendar($chatid, $month_input, $callback_query_id);
-					break;
-				case $text==='/lokasi':
-					$this->setLocation($chatid);
-					break;
+				// case $text==='/tanggal'://udah bisa
+				// 	$this->showCalendar($chatid, $month_input, $callback_query_id);
+				// 	break;
+				// case $text==='/lokasi':
+				// 	$this->setLocation($chatid);
+				// 	break;
 
 				case substr($text,0,7) === '/psndrv':
 					$listparams = substr($text,7);
@@ -59,32 +59,20 @@ class tes extends Controller
 					unset($params[0]);
 					$params = array_values($params);
 
-					// if(count($params)==1){
-					// 	$this->defaultMessage($chatid, $text, $username);}
-					// }elseif(count($params)==2){
-					// 	if($params[1]=="set"){
-					// 		$this->setPic($chatid, $params);
-					// 	}else{
-					// 		$this->releaseDriver($chatid, $params);
-					// 	}
-					// }elseif(count($params)==3){
-					// 	// $callback_query_id=0;
-					// 	$month_input = date("Y-m");
-					// 	$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
-					// }elseif(count($params)==4){
-					// 	// $callback_query_id=0;
-					// 	$this->setLocation($chatid, $params);
-					// }elseif(count($params)==5){
-					// 	// $callback_query_id=0;
-					// 	$this->saveTheUpdates($chatid, $params, $username);
-					// }//end elseif
-							//$response_txt .= "Mengenal command dan berhasil merespon\n";
-					// break;
+					if(count($params)==1){
+						$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
+					}elseif(count($params)==2){
+						$this->setLocation($chatid, $params);
+					}elseif(count($params)==3){
+						$this->saveTheUpdates($chatid, $params, $username);
+					}
+					//$response_txt .= "Mengenal command dan berhasil merespon\n";
+					break;
 
-				// case substr($text,0,6) === 'change':
-				// 	$month_input = substr($text,6,7);
-				// 	$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
-				// 	break;
+				case substr($text,0,6) === 'change':
+					$month_input = substr($text,6,7);
+					$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
+					break;
 
 				default:
 					 $this->defaultMessage($chatid, $text, $username);
@@ -98,7 +86,7 @@ class tes extends Controller
 		}//end catch
 	}//akhir fungsi webhook
 
-	public function setLocation($chatid)//fungsi buat milih tujuan kerja
+	public function setLocation($chatid, $params)//fungsi buat milih tujuan kerja
   {//awal fungsi
 		$message="";
 		$location = [];
@@ -108,12 +96,12 @@ class tes extends Controller
 		$col =0;
 		for ($i=0;$i<count($locationlist);$i++){
 			if($col<$max_col){
-				$locationperrow[] = Keyboard::inlineButton(['text' => $locationlist[$i], 'callback_data' => '/upddrv#'.$locationlist[$i]]);
+				$locationperrow[] = Keyboard::inlineButton(['text' => $locationlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$locationlist[$i]]);
 			}else{
 				$col=0;
 				$location[] = $locationperrow;
 				$location = [];
-				$location[] = Keyboard::inlineButton(['text' => $locationlist[$i], 'callback_data' => '/upddrv#'.$locationlist[$i]]);
+				$location[] = Keyboard::inlineButton(['text' => $locationlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$locationlist[$i]]);
 			}//end else
 			$col++;
 		}//end for
@@ -135,7 +123,7 @@ class tes extends Controller
 		]);
 	}//akhir fungsi
 
-	public function showCalendar($chatid, $month_input, $cbid)
+	public function showCalendar($chatid, $params, $month_input, $cbid)
   {//awal fungsi
 		if($cbid != 0){
 			$responses = Telegram::answerCallbackQuery([
@@ -147,7 +135,7 @@ class tes extends Controller
 
 		$message = "*PILIH TANGGAL PENUGASAN*\n";
 		$message .= DateTime::createFromFormat('Y-m-d',$month_input."-01")->format("F Y")." \n";
-		$calendar = $this->createCalendar($month_input);
+		$calendar = $this->createCalendar($month_input, $params);
 
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
@@ -191,7 +179,7 @@ class tes extends Controller
 		]);
 	}//akhir fungsi change calendar
 
-	public function createCalendar($month_input)//fungsi buat bikin kalender
+	public function createCalendar($month_input, $params)//fungsi buat bikin kalender
   {//awal fungsi create calendar
 		$calendar = [];
 		$keyboard = [];
@@ -206,7 +194,7 @@ class tes extends Controller
 				if((($col<$startday)&&($row==0))||(($date>$maxdate))){
 					$calendarperrow[] = Keyboard::inlineButton(['text' => '_', 'callback_data' => '_']);
 				}else{
-					$calendarperrow[] = Keyboard::inlineButton(['text' => substr("0".strval($date),-2), 'callback_data' => '/upddrv#'.$month_input."-".substr("0".strval($date),-2)]);
+					$calendarperrow[] = Keyboard::inlineButton(['text' => substr("0".strval($date),-2), 'callback_data' => '/psndrv#'.$params[0]."#".$month_input."-".substr("0".strval($date),-2)]);
 					$date++;
 				}//end else
 			}//end for
@@ -278,6 +266,27 @@ class tes extends Controller
 			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
 		]);
 	}//ini akhir fungsi
+
+	public function saveTheUpdates($chatid, $params, $username)
+  {//awal fungsi
+		$idDriver=$params[0];
+		$status="";
+		if($params[1]=="set"){
+			$status= "Terpakai";
+		}
+		$result = DB::table('pemesanan')->insert(['pic'=>$params[0],'tanggal'=>$params[1], 'tujuan'=>$params[2]]);
+		$pesan="Hallo, ada pemesanan dari bagian ".$params[0]." dengan tujuan ".$params[2]." pada tanggal ".$params[1].". Silakan click /updatetiket untuk memproses tiket yang ada";
+		$message = "Pemesanan Berhasil\n";
+		$response = Telegram::sendMessage([
+			'chat_id' => $chatid,
+			'text' => $message
+		]);
+		$response = Telegram::sendMessage([
+		  'chat_id' => 437329516,//kalo mau ke supirnya tinggal diganti @idDriver
+		  'parse_mode' => 'markdown',
+		  'text' => $pesan
+		]);
+	}//akhir fungsi
 
 }//akhir kelas
 

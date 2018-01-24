@@ -20,17 +20,6 @@ use Illuminate\Support\Facades\Log;
 class cek extends Controller
 {//awal kelas
 
-	public function setWebhook(){
-		$response = Telegram::setWebhook(['url' => 'https://caa49752.ngrok.io/tes/public/webhook',]);
-		dd($response);
-	}
-
-	public function unsetWebhook()
-	{
-		$response = Telegram::removeWebhook();
-		dd($response);
-	}
-
 	public function webhook()
   {//awal fungsi webhook
 		try{//awal try
@@ -500,7 +489,7 @@ class cek extends Controller
 	}//akhir fungsi
 
 	public function saveTheUpdates($chatid, $params, $username)
-  {//awal fungsi
+  {//awal fungsi save updates
 		$idDriver=$params[0];
 		$status="";
 		if($params[1]=="set"){
@@ -519,7 +508,7 @@ class cek extends Controller
 		  'parse_mode' => 'markdown',
 		  'text' => $pesan
 		]);
-	}//akhir fungsi
+	}//akhir fungsi save updates
 
 }//akhir kelas
 ?>
