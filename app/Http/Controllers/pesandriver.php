@@ -46,12 +46,6 @@ class pesandriver extends Controller
 				case $text === '/pesan'://udah bisa
 					$this->setPic($chatid);
 					break;
-				// case $text==='/tanggal'://udah bisa
-				// 	$this->showCalendar($chatid, $month_input, $callback_query_id);
-				// 	break;
-				// case $text==='/lokasi':
-				// 	$this->setLocation($chatid);
-				// 	break;
 
 				case substr($text,0,7) === '/psndrv':
 					$listparams = substr($text,7);
@@ -219,37 +213,47 @@ class pesandriver extends Controller
 	{//awal fungsi pic
 		$message="";
 		$pic = [];
+		$result=DB::table('driver')->where(['status'=>""])->get();
 		$piclist = ['LOG','SDM','MRK','LEGAL','OJL','ECH','KONSUMER','AO','BIT','ARK','ADK','RPKB','EBK','PRG','DJS','BRILINK','RTL','MKR','WPO','WPB1','WPB2','WPB3','WPB4','PINWIL','KANPUS','PIHAK LUAR','LAIN-LAIN'];
 		$message = "*PILIH PIC YANG PESAN* \n\n";
 		$max_col = 4;
 		$col =0;
-		for ($i=0;$i<count($piclist);$i++){
-			if($col<$max_col){
-				$picperrow[] = Keyboard::inlineButton(['text' => $piclist[$i], 'callback_data' => '/psndrv#'.$piclist[$i]]);
-			}else{
+		if ($result->count()>0) {
+			for ($i=0;$i<count($piclist);$i++){
+				if($col<$max_col){
+					$picperrow[] = Keyboard::inlineButton(['text' => $piclist[$i], 'callback_data' => '/psndrv#'.$piclist[$i]]);
+				}else{
+					$col=0;
+					$pic[] = $picperrow;
+					$picperrow = [];
+					$picperrow[] = Keyboard::inlineButton(['text' => $piclist[$i], 'callback_data' => '/psndrv#'.$piclist[$i]]);
+				}//end else
+				$col++;
+			}//end for
+			if($col>0){
 				$col=0;
 				$pic[] = $picperrow;
-				$picperrow = [];
-				$picperrow[] = Keyboard::inlineButton(['text' => $piclist[$i], 'callback_data' => '/psndrv#'.$piclist[$i]]);
-			}//end else
-			$col++;
-		}//end for
-		if($col>0){
-			$col=0;
-			$pic[] = $picperrow;
-		}//endif
-		$reply_markup = Telegram::replyKeyboardMarkup([
-			'resize_keyboard' => true,
-			'one_time_keyboard' => true,
-			'inline_keyboard' => $pic
-		]);
+			}//endif
 
-		$response = Telegram::sendMessage([
-			'chat_id' => $chatid,
-			'parse_mode' => 'markdown',
-			'text' => $message,
-			'reply_markup' => $reply_markup
-		]);
+			$reply_markup = Telegram::replyKeyboardMarkup([
+				'resize_keyboard' => true,
+				'one_time_keyboard' => true,
+				'inline_keyboard' => $pic
+			]);
+
+			$response = Telegram::sendMessage([
+				'chat_id' => $chatid,
+				'parse_mode' => 'markdown',
+				'text' => $message,
+				'reply_markup' => $reply_markup
+			]);
+
+		}else {
+			$response = Telegram::sendMessage([
+				'chat_id' => $chatid,
+				'text' => "Driver tidak tersedia"
+			]);
+		}
 	}//ini akhir fungsi pic
 
 	public function defaultMessage($chatid, $text, $username) //ini untuk menampilkan pesan default
@@ -269,7 +273,7 @@ class pesandriver extends Controller
 
 	public function saveTheUpdates($chatid, $params, $username)
   {//awal fungsi
-		$idDriver=$params[0];
+		// $idDriver=$params[0];
 		$status="";
 		if($params[1]=="set"){
 			$status= "Terpakai";

@@ -13,17 +13,19 @@
 
 // use Telegram;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+//
+// Route::get('/testing', function () {
+//     return view('testing');
+// });
+//
+// Route::get('/sendMsg', function () {
+//     return view('sendMsg');
+// });
 
-Route::get('/testing', function () {
-    return view('testing');
-});
-
-Route::get('/sendMsg', function () {
-    return view('sendMsg');
-});
+Route::get('show', 'tes@show');
 
 Route::get('/me', 'ApiController@me');
 
@@ -53,10 +55,11 @@ Route::get('/unset', 'webhook@unsetWebhook');//buat unset webhook
 // Route::post('webhook', 'updatedriver@webhook');//buat update driver
 // Route::post('webhook', 'pesandriver@webhook');//buat pesan driver
 Route::post('webhook', 'updatetiket@webhook');//buat update tiket
-// Route::get('respond', 'tes@respond');
 
+
+// Route::get('respond', 'tes@respond');
 // Route::get('respond', 'loop@respond');//buat nge-debug
-Route::get('respond', 'tes@respond');//buat nge-debug
+Route::get('respond', 'updatetiket@respond');//buat nge-debug
 
 // $updates = Telegram::getWebhookUpdates();
 // Route::post('/<token>/webhook', function () {

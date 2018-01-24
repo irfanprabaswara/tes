@@ -43,30 +43,35 @@ class updatetiket extends Controller
         case $text === '/start':
           $this->defaultMessage($chatid, $text, $username);
           break;
-        // case $text === '/updatetiket'://udah bisa
-        //   $this->setPic($chatid);
+        case $text === '/updatetiket'://udah bisa
+          $this->updateTiket($chatid, $text, $username);
+          break;
+        // case $text==='/tiket'://udah bisa
+        //   $this->showDataTiket($chatid);
+        //   break;
+        // case $text==='/urus'://udah bisa
+        //   $this->setDriver($chatid, $username, $text);
         //   break;
 
-        // case substr($text,0,7) === '/updtkt':
-        //   $listparams = substr($text,7);
-        //   $params = explode('#',$listparams);
-        //   unset($params[0]);
-        //   $params = array_values($params);
-        //
-        //   if(count($params)==1){
-        //     $this->showCalendar($chatid, $params, $month_input, $callback_query_id);
-        //   }elseif(count($params)==2){
-        //     $this->setLocation($chatid, $params);
-        //   }elseif(count($params)==3){
-        //     $this->saveTheUpdates($chatid, $params, $username);
-        //   }
+        case substr($text,0,7) === '/updtkt':
+          $listparams = substr($text,7);
+          $params = explode('#',$listparams);
+          unset($params[0]);
+          $params = array_values($params);
+
+          if(count($params)==1){
+            $this->showDataTiket($chatid, $params);
+            $this->setDriver($chatid, $params);
+          }else{
+            $this->saveTheUpdates($chatid, $params);
+          }
         //   //$response_txt .= "Mengenal command dan berhasil merespon\n";
         //   break;
         //
         // case substr($text,0,6) === 'change':
         //   $month_input = substr($text,6,7);
         //   $this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
-        //   break;
+        break;
 
         default:
            $this->defaultMessage($chatid, $text, $username);
@@ -79,6 +84,133 @@ class updatetiket extends Controller
         ]);
     }//end catch
   }//akhir fungsi webhook
+
+  public function saveTheUpdates($chatid, $params)
+  {//awal fungsi save updates
+		$nomor=$params[0];
+    $idDriver=$params[1];
+		$status="Terpakai";
+    $update="SELESAI";
+    $result = DB::table('pemesanan')->where(['no_tiket'=>$nomor])->update(['status'=>$update]);
+    $result = DB::table('driver')->where(['id'=>$idDriver])->update(['status'=>$status]);
+		$pesan="Hallo, anda telah dipesan";
+		$message = "Data Driver berhasil terupdate\n";
+		$response = Telegram::sendMessage([
+			'chat_id' => $chatid,
+			'text' => $message
+		]);
+		$response = Telegram::sendMessage([
+		  'chat_id' => 437329516,//kalo mau ke supirnya tinggal diganti @idDriver
+		  'parse_mode' => 'markdown',
+		  'text' => $pesan
+		]);
+	}//akhir fungsi save updates
+
+  public function setDriver($chatid, $params)//fungsi buat update driver
+  {//awal fungsi
+		$driver = [];
+		$keyboard = [];
+		$message="";
+    $nomor=$params[0];
+		$result = DB::table('driver')->where(['status'=>""])->get();
+		$message = "*PILIH DRIVER YANG AKAN DI-UPDATE* \n\n";
+		$max_col = 3;
+		$col =0;
+		if ($result->count()>0){
+			for ($i=0;$i<$result->count();$i++){
+				if($col<$max_col){
+					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/upddrv#'.$params[0]."#".$result[$i]->id]);
+				}else{
+					$col=0;
+					$driver[] = $driverperrow;
+					$driverperrow = [];
+					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/upddrv#'.$params[0]."#".$result[$i]->id]);
+				}//end else
+				$col++;
+			}//end for
+		}//end if
+		if($col>0){
+			$col=0;
+			$driver[] = $driverperrow;
+		}//end if
+
+		$reply_markup = Telegram::replyKeyboardMarkup([
+			'resize_keyboard' => true,
+			'one_time_keyboard' => true,
+		    'inline_keyboard' => $driver
+		]);
+
+		$response = Telegram::sendMessage([
+		  'chat_id' => $chatid,
+		  'parse_mode' => 'markdown',
+		  'text' => $message,
+		  'reply_markup' => $reply_markup
+		]);
+
+	}//akhir fungsi
+
+  public function updateTiket($chatid, $text, $username)//udah bisa
+  {//awal fungsi update tiket
+    $result = DB::table('pemesanan')->where(['status'=>null])->get();
+    $message = "*PILIH TIKET YANG AKAN DI-UPDATE* \n\n";
+		$max_col = 2;
+		$col =0;
+		if ($result->count()>0){
+			for ($i=0;$i<$result->count();$i++){
+				if($col<$max_col){
+					$tiketperrow[] = Keyboard::inlineButton(['text' => $result[$i]->no_tiket, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
+				}else{
+					$col=0;
+					$tiket[] = $tiketperrow;
+					$tiketperrow = [];
+					$tiketperrow[] = Keyboard::inlineButton(['text' => $result[$i]->no_tiket, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
+				}//end else
+				$col++;
+			}//end for
+		}//end if
+		if($col>0){
+			$col=0;
+			$tiket[] = $tiketperrow;
+		}//end if
+
+		$reply_markup = Telegram::replyKeyboardMarkup([
+			'resize_keyboard' => true,
+			'one_time_keyboard' => true,
+		    'inline_keyboard' => $tiket
+		]);
+
+		$response = Telegram::sendMessage([
+		  'chat_id' => $chatid,
+		  'parse_mode' => 'markdown',
+		  'text' => $message,
+		  'reply_markup' => $reply_markup
+		]);
+
+		$response = Telegram::sendMessage([
+			'chat_id' => 437329516,
+			// 'parse_mode' => 'markdown',
+			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
+		]);
+  }//akhir fungsi update tiket
+
+  public function showDataTiket($chatid, $params)//udah bisa tampil
+  {//awal fungsi show tiket
+    $message="";
+    $nomor=$params[0];
+		$result = DB::table('pemesanan')->where(['no_tiket'=>$nomor])->first();
+		$message = "*DETAIL PESANAN* \n\n";
+		$message .= "NOMOR TIKET : ".$result->no_tiket."\n";
+    $message .= "PIC : ".$result->pic."\n";
+    $message .= "TANGGAL PENUGASAN : ".$result->tanggal."\n";
+    $message .= "TUJUAN PENUGASAN : ".$result->lokasi."\n";
+    $driver[] = Keyboard::inlineButton(['text' => "URUS", 'callback_data' => '/updtkt#'.$params[0]]);
+
+		$response = Telegram::sendMessage([
+			'chat_id' => $chatid,
+			'parse_mode' => 'markdown',
+			'text' => $message
+		]);
+  }//akhir fungsi show tiket
 
   public function defaultMessage($chatid, $text, $username) //ini untuk menampilkan pesan default
   {

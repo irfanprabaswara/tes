@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 //PERLU DIPERHATIKAN
 
-class cek extends Controller
+class updatedriver extends Controller
 {//awal kelas
 
 	public function webhook()
@@ -116,6 +116,9 @@ class cek extends Controller
 		}//end catch
 	}//akhir fungsi webhook
 
+	/*
+		Berikut merupakan program untuk update driver
+	*/
 	public function showWelcomeMessage($chatid)
   {//awal fungsi
 		$message = "Sugeng rawuh. Bot Kanwil Yogya siap membantu seadanya";
