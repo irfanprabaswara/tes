@@ -106,7 +106,7 @@ class cek extends Controller
 					}elseif(count($params)==5){
 						// $callback_query_id=0;
 						$this->saveTheUpdates($chatid, $params, $username);
-					}
+					}//end elseif
 
 					//$response_txt .= "Mengenal command dan berhasil merespon\n";
 					break;
@@ -121,7 +121,7 @@ class cek extends Controller
 			}//end switch
 		}catch (\Exception $e) {
 			Telegram::sendMessage([
-				'chat_id' => 437329516,
+				'chat_id' => $chatid,
 				'text' => "Reply ".$e->getMessage()
 			]);
 		}//end catch
@@ -332,7 +332,7 @@ class cek extends Controller
 	}//akhir fungsi
 
 	public function setPic($chatid, $params)//fungsi buat milih bagian kerja atau PIC
-  {//awal fungsi
+  {//awal fungsi pic
 		$message="";
 		$pic = [];
 		$driverid = $params[0];
@@ -358,7 +358,7 @@ class cek extends Controller
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
 			'one_time_keyboard' => true,
-		    'inline_keyboard' => $pic
+		  'inline_keyboard' => $pic
 		]);
 
 		$response = Telegram::sendMessage([
@@ -367,7 +367,7 @@ class cek extends Controller
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
 		]);
-	}//akhir fungsi
+	}//akhir fungsi pic
 
 	public function showCalendar($chatid, $params, $month_input, $cbid)
   {//awal fungsi
@@ -423,10 +423,10 @@ class cek extends Controller
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
 		]);
-	}//akhir fungsi
+	}//akhir fungsi change calendar
 
 	public function createCalendar($month_input, $params)//fungsi buat bikin kalender
-  {//awal fungsi
+  {//awal fungsi create calendar
 		$calendar = [];
 		$keyboard = [];
 		$maxdate = date("t", strtotime($month_input."-01"));
@@ -459,7 +459,7 @@ class cek extends Controller
 		$calendar[] = $calendarperrow;
 
 		return $calendar;
-	}//akhir fungsi
+	}//akhir fungsi create calendar
 
 	public function setLocation($chatid, $params)//fungsi buat milih tujuan kerja
   {//awal fungsi

@@ -50,8 +50,8 @@ Route::get('capture', 'BrowsershotController@capturePage');
 Route::get('/set', 'webhook@setWebhook');//buat ngeset webhook
 Route::get('/unset', 'webhook@unsetWebhook');//buat unset webhook
 // Route::post('webhook', 'webhook@webhook');//buat akses fungsi yang pake webhook
-Route::post('webhook', 'cek@webhook');
-// Route::post('webhook', 'tes@webhook');
+// Route::post('webhook', 'cek@webhook');//buat update driver
+Route::post('webhook', 'tes@webhook');//buat pesan driver
 // Route::get('respond', 'tes@respond');
 
 // Route::get('respond', 'loop@respond');//buat nge-debug
