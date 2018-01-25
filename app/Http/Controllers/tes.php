@@ -13,7 +13,8 @@ class tes extends Controller
     return $result;
   }
 
-  public function respond(){
+  public function respond()
+  {
   $telegram = new Api (env('TELEGRAM_BOT_TOKEN'));
   $request = Telegram::getUpdates();
   $request = collect(end($request));
@@ -31,6 +32,9 @@ class tes extends Controller
       case $text === '/updatetiket'://udah bisa
         $this->updateTiket($chatid, $text, $username);
         break;
+      // case $text==='/cek':
+      //   $this->updateLog($chatid);
+      //   break;
       // case $text==='/tiket'://udah bisa
       //   $this->showDataTiket($chatid);
       //   break;
@@ -46,8 +50,11 @@ class tes extends Controller
 
         if(count($params)==1){
           $this->showDataTiket($chatid, $params);
-        }elseif(count($params)==2){
           $this->setDriver($chatid, $params);
+        }else{
+          $this->updateLog($chatid, $params);
+          // $this->statusDriver($params);
+          // $this->statusPemesanan($params);
         }
       //   //$response_txt .= "Mengenal command dan berhasil merespon\n";
       //   break;
@@ -55,13 +62,13 @@ class tes extends Controller
       // case substr($text,0,6) === 'change':
       //   $month_input = substr($text,6,7);
       //   $this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
-      //   break;
+      break;
 
       default:
          $this->defaultMessage($chatid, $text, $username);
          break;
     }//end switch
-  }
+  }//akhir fungsi respond
 
 }//akhir kelas
 

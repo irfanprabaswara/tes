@@ -14,7 +14,6 @@ return [
     |
     */
     'bot_token' => env('TELEGRAM_BOT_TOKEN', 'YOUR-BOT-TOKEN'),
-
     /*
     |--------------------------------------------------------------------------
     | Asynchronous Requests [Optional]

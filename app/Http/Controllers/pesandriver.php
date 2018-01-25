@@ -54,11 +54,11 @@ class pesandriver extends Controller
 					$params = array_values($params);
 
 					if(count($params)==1){
-						$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
+						$this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
 					}elseif(count($params)==2){
-						$this->setLocation($chatid, $params);
+						$this->lokasi($chatid, $params);
 					}elseif(count($params)==3){
-						$this->saveTheUpdates($chatid, $params, $username);
+						$this->simpanPesanan($chatid, $params, $username);
 					}
 					//$response_txt .= "Mengenal command dan berhasil merespon\n";
 					break;
@@ -80,7 +80,7 @@ class pesandriver extends Controller
 		}//end catch
 	}//akhir fungsi webhook
 
-	public function setLocation($chatid, $params)//fungsi buat milih tujuan kerja
+	public function lokasi($chatid, $params)//fungsi buat milih tujuan kerja
   {//awal fungsi
 		$message="";
 		$location = [];
@@ -117,7 +117,7 @@ class pesandriver extends Controller
 		]);
 	}//akhir fungsi
 
-	public function showCalendar($chatid, $params, $month_input, $cbid)
+	public function tampilCalendar($chatid, $params, $month_input, $cbid)
   {//awal fungsi
 		if($cbid != 0){
 			$responses = Telegram::answerCallbackQuery([
@@ -129,7 +129,7 @@ class pesandriver extends Controller
 
 		$message = "*PILIH TANGGAL PENUGASAN*\n";
 		$message .= DateTime::createFromFormat('Y-m-d',$month_input."-01")->format("F Y")." \n";
-		$calendar = $this->createCalendar($month_input, $params);
+		$calendar = $this->buatCalendar($month_input, $params);
 
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
@@ -157,7 +157,7 @@ class pesandriver extends Controller
 
 		$message = "";
 		$message .= DateTime::createFromFormat('Y-m-d',$month_input."-01")->format("F Y")." \n";
-		$calendar = $this->createCalendar($month_input);
+		$calendar = $this->buatCalendar($month_input);
 
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
@@ -173,7 +173,7 @@ class pesandriver extends Controller
 		]);
 	}//akhir fungsi change calendar
 
-	public function createCalendar($month_input, $params)//fungsi buat bikin kalender
+	public function buatCalendar($month_input, $params)//fungsi buat bikin kalender
   {//awal fungsi create calendar
 		$calendar = [];
 		$keyboard = [];
@@ -271,20 +271,32 @@ class pesandriver extends Controller
 		]);
 	}//ini akhir fungsi
 
-	public function saveTheUpdates($chatid, $params, $username)
+	// public function pesanUser($chatid)//ini buat nampilin nomor tiket ke user, tapi masih gagal
+	// {//awal fungsi pesan ke user
+	// 	$result = DB::table('pemesanan')->where(['pic'=>$params[0],'tanggal'=>$params[1], 'lokasi'=>$params[2]])->first();
+	// 	$message = "Pesanan anda dengan nomor tiket : ".$result->nomer_tiket." telah kami terima dan akan kami proses lebih lanjut."
+	// 	$response = Telegram::sendMessage([
+	// 	  'chat_id' => $chatid,//kalo mau ke supirnya tinggal diganti @idDriver
+	// 	  'parse_mode' => 'markdown',
+	// 	  'text' => $message
+	// 	]);
+	// }//akhir fungsi pesan ke user
+
+	public function simpanPesanan($chatid, $params, $username)
   {//awal fungsi
-		// $idDriver=$params[0];
 		$status="";
-		if($params[1]=="set"){
-			$status= "Terpakai";
-		}
-		$result = DB::table('pemesanan')->insert(['pic'=>$params[0],'tanggal'=>$params[1], 'tujuan'=>$params[2]]);
+		// if($params[1]=="set"){
+		// 	$status= "Terpakai";
+		// }
+		$result = DB::table('pemesanan')->insert(['pic'=>$params[0],'chatid'=>$chatid,'tanggal'=>$params[1], 'lokasi'=>$params[2]]);
 		$pesan="Hallo, ada pemesanan dari bagian ".$params[0]." dengan tujuan ".$params[2]." pada tanggal ".$params[1].". Silakan click /updatetiket untuk memproses tiket yang ada";
-		$message = "Pemesanan Berhasil\n";
+		$message = "*Pemesanan Berhasil*\n";
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
+			'parse_mode' => 'markdown',
 			'text' => $message
 		]);
+		// $this->pesanUser($chatid);
 		$response = Telegram::sendMessage([
 		  'chat_id' => 437329516,//kalo mau ke supirnya tinggal diganti @idDriver
 		  'parse_mode' => 'markdown',

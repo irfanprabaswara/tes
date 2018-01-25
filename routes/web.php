@@ -54,12 +54,15 @@ Route::get('/unset', 'webhook@unsetWebhook');//buat unset webhook
 // Route::post('webhook', 'webhook@webhook');//buat akses fungsi yang pake webhook
 // Route::post('webhook', 'updatedriver@webhook');//buat update driver
 // Route::post('webhook', 'pesandriver@webhook');//buat pesan driver
-Route::post('webhook', 'updatetiket@webhook');//buat update tiket
+// Route::post('webhook', 'updatetiket@webhook');//buat update tiket
+Route::post('webhook', 'FinalProject@webhook');//FINAL
 
 
 // Route::get('respond', 'tes@respond');
 // Route::get('respond', 'loop@respond');//buat nge-debug
-Route::get('respond', 'updatetiket@respond');//buat nge-debug
+
+// Route::get('respond', 'updatetiket@respond');//buat nge-debug
+Route::get('respond', 'FinalProject@respond');//buat nge-debug
 
 // $updates = Telegram::getWebhookUpdates();
 // Route::post('/<token>/webhook', function () {

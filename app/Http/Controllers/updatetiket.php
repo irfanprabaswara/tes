@@ -46,6 +46,9 @@ class updatetiket extends Controller
         case $text === '/updatetiket'://udah bisa
           $this->updateTiket($chatid, $text, $username);
           break;
+        // case $text==='/cek':
+        //   $this->updateLog($chatid);
+        //   break;
         // case $text==='/tiket'://udah bisa
         //   $this->showDataTiket($chatid);
         //   break;
@@ -63,7 +66,7 @@ class updatetiket extends Controller
             $this->showDataTiket($chatid, $params);
             $this->setDriver($chatid, $params);
           }else{
-            $this->saveTheUpdates($chatid, $params);
+            $this->updateLog($chatid, $params);
           }
         //   //$response_txt .= "Mengenal command dan berhasil merespon\n";
         //   break;
@@ -85,26 +88,61 @@ class updatetiket extends Controller
     }//end catch
   }//akhir fungsi webhook
 
-  public function saveTheUpdates($chatid, $params)
-  {//awal fungsi save updates
+  public function updateLog($chatid, $params)
+  {//awal fungsi updateLog
 		$nomor=$params[0];
     $idDriver=$params[1];
-		$status="Terpakai";
-    $update="SELESAI";
-    $result = DB::table('pemesanan')->where(['no_tiket'=>$nomor])->update(['status'=>$update]);
-    $result = DB::table('driver')->where(['id'=>$idDriver])->update(['status'=>$status]);
-		$pesan="Hallo, anda telah dipesan";
+    // $nomor='13';
+    // $idDriver='549021135';
+		$statusDriver="Terpakai";
+    $statusTiket="SELESAI";
+    $get = DB::table('pemesanan')->where(['no_tiket'=>$nomor])->first();
+    // $tambahLog = array(
+    //   'id'=> $idDriver,
+    //   'pic' => $get->pic,
+    //    'tanggal_mulai'=>$get->tanggal,
+    //    'lokasi'=>$get->lokasi
+    // );
+    // DB::table('log_driver')->insert($tambahLog);
+    DB::table('log_driver')->insert(['tanggal'=>date('Y-m-d H:i:s'),'id'=>$idDriver,'pic'=>$get->pic,'tanggal_mulai'=>$get->tanggal, 'lokasi'=>$get->lokasi]);
+    DB::table('pemesanan')->where(['no_tiket'=>$nomor])->update(['status'=>$statusTiket]);
+    DB::table('driver')->where(['id'=>$idDriver])->update(['status'=>$statusDriver]);
+		$pesan="Hallo, anda telah dipesan oleh bagian ".$get->pic." pada tanggal ".$get->tanggal." dengan tujuan ".$get->lokasi;
 		$message = "Data Driver berhasil terupdate\n";
-		$response = Telegram::sendMessage([
+    $pesanUser="Pesanan anda dengan tujuan ".$get->lokasi." pada tanggal ".$get->tanggal." telah diproses dengan nomer tiket ".$nomor;
+
+    $response = Telegram::sendMessage([//buat ngirim ke pemesan
+			'chat_id' => $get->chatid,
+			'text' => $pesanUser
+		]);
+
+		$response = Telegram::sendMessage([//buat ngirim ke admin
 			'chat_id' => $chatid,
 			'text' => $message
 		]);
-		$response = Telegram::sendMessage([
+
+		$response = Telegram::sendMessage([//buat ngirim ke supir
 		  'chat_id' => 437329516,//kalo mau ke supirnya tinggal diganti @idDriver
 		  'parse_mode' => 'markdown',
 		  'text' => $pesan
 		]);
-	}//akhir fungsi save updates
+	}//akhir fungsi updateLog
+
+  // public function statusDriver($params)//kayanya bener
+  // {//awal fungsi statusDriver
+  //   $nomor=$params[0];
+  //   $idDriver=$params[1];
+  //   $status ="Terpakai";
+  //   $result = DB::table('driver')->where(['id'=>$idDriver])->update(['status'=>$status]);
+  // }//akhir fungsi statusDriver
+  //
+  // public function statusPemesanan($params)//kayanya bener
+  // {//awal fungsi statusPemesanan
+  //   $nomor=$params[0];
+  //   $idDriver=$params[1];
+  //   $status ="SELESAI";
+  //   $result = DB::table('pemesanan')->where(['no_tiket'=>$nomor])->update(['status'=>$status]);
+  // }//akhir fungsi  statusPemesanan
 
   public function setDriver($chatid, $params)//fungsi buat update driver
   {//awal fungsi
@@ -119,12 +157,12 @@ class updatetiket extends Controller
 		if ($result->count()>0){
 			for ($i=0;$i<$result->count();$i++){
 				if($col<$max_col){
-					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/upddrv#'.$params[0]."#".$result[$i]->id]);
+					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$result[$i]->id]);
 				}else{
 					$col=0;
 					$driver[] = $driverperrow;
 					$driverperrow = [];
-					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/upddrv#'.$params[0]."#".$result[$i]->id]);
+					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$result[$i]->id]);
 				}//end else
 				$col++;
 			}//end for
@@ -221,7 +259,7 @@ class updatetiket extends Controller
 			'text' => $message
 		]);
 		$response = Telegram::sendMessage([
-			'chat_id' => 437329516,
+			'chat_id' => $chatid,
 			// 'parse_mode' => 'markdown',
 			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
 		]);
