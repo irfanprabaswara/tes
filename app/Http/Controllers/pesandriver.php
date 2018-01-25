@@ -43,8 +43,11 @@ class pesandriver extends Controller
 				case $text === '/start':
 					$this->defaultMessage($chatid, $text, $username);
 					break;
-				case $text === '/pesan'://udah bisa
-					$this->setPic($chatid);
+				case $text === 'pesandriver'://udah bisa
+					$this->aturPic($chatid,$callback_query_id);
+					break;
+				case $text==='/menu':
+					$this->aturPic($chatid,$callback_query_id);
 					break;
 
 				case substr($text,0,7) === '/psndrv':
@@ -63,9 +66,9 @@ class pesandriver extends Controller
 					//$response_txt .= "Mengenal command dan berhasil merespon\n";
 					break;
 
-				case substr($text,0,6) === 'change':
-					$month_input = substr($text,6,7);
-					$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
+				case substr($text,0,4) === 'ubah':
+					$month_input = substr($text,4,7);
+					$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
 					break;
 
 				default:
@@ -79,6 +82,26 @@ class pesandriver extends Controller
 			]);
 		}//end catch
 	}//akhir fungsi webhook
+
+	public function apaya($chatid, $info = null)//PERBAIKI
+  {//awal fungsi
+		// this will create keyboard buttons for users to touch instead of typing commands
+		$inlineLayout = [[
+			Keyboard::inlineButton(['text' => 'Pesan Driver', 'callback_data' => 'pesandriver'])
+		]];
+
+		// create an instance of the replyKeyboardMarkup method
+		$keyboard = Telegram::replyKeyboardMarkup([
+			'inline_keyboard' => $inlineLayout
+		]);
+
+		// Now send the message with they keyboard using 'reply_markup' parameter
+		$response = Telegram::sendMessage([
+			'chat_id' => $chatid,
+			'text' => 'Keyboard',
+			'reply_markup' => $keyboard
+		]);
+	}//akhir fungsi
 
 	public function lokasi($chatid, $params)//fungsi buat milih tujuan kerja
   {//awal fungsi
@@ -145,7 +168,7 @@ class pesandriver extends Controller
 		]);
 	}//akhir fungsi show calendar
 
-	public function changeCalendar($chatid, $messageid, $month_input, $cbid)
+	public function ubahCalendar($chatid, $messageid, $month_input, $cbid)
   {//awal fungsi
 		if($cbid != 0){
 			$responses = Telegram::answerCallbackQuery([
@@ -201,16 +224,22 @@ class pesandriver extends Controller
 		$next_date = DateTime::createFromFormat('Y-m-d',$eek)->add(new DateInterval('P1M'))->format("Y-m");
 
 		$calendarperrow = [
-			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => "change".$prev_date]),
-			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => "change".$next_date])
+			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => "ubah".$prev_date]),
+			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => "ubah".$next_date])
 		];
 		$calendar[] = $calendarperrow;
 
 		return $calendar;
 	}//akhir fungsi create calendar
 
-	public function setPic($chatid)
+	public function aturPic($chatid, $cbid)
 	{//awal fungsi pic
+		if($cbid != 0){
+		$responses = Telegram::answerCallbackQuery([
+			'callback_query_id' => $cbid,
+			'text' => '',
+			'show_alert' => false
+		]);
 		$message="";
 		$pic = [];
 		$result=DB::table('driver')->where(['status'=>""])->get();
@@ -285,9 +314,6 @@ class pesandriver extends Controller
 	public function simpanPesanan($chatid, $params, $username)
   {//awal fungsi
 		$status="";
-		// if($params[1]=="set"){
-		// 	$status= "Terpakai";
-		// }
 		$result = DB::table('pemesanan')->insert(['pic'=>$params[0],'chatid'=>$chatid,'tanggal'=>$params[1], 'lokasi'=>$params[2]]);
 		$pesan="Hallo, ada pemesanan dari bagian ".$params[0]." dengan tujuan ".$params[2]." pada tanggal ".$params[1].". Silakan click /updatetiket untuk memproses tiket yang ada";
 		$message = "*Pemesanan Berhasil*\n";

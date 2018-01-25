@@ -24,24 +24,78 @@ class tes extends Controller
     $username=$request['message']['chat']['username'];
 
 
-    switch($text)
-    {//mulai switch
-      case $text === '/start':
-        $this->defaultMessage($chatid, $text, $username);
-        break;
+		switch($text)
+		{//mulai switch
+			case $text === '/start'://udah bisa
+				$this->showWelcomeMessage($chatid);
+				break;
+			case $text==='/menu'://udah bisa
+				$this->showMenu($chatid);
+				break;
+			case $text === 'website'://udah bisa
+				 $this->showWebsite($chatid, $callback_query_id);
+					 break;
+			case $text === 'contact'://udah bisa
+				 $this->showContact($chatid, $callback_query_id);
+				 break;
+			case $text === '/driver'://udah bisa
+				$this->showDriverList($chatid, $username, $text);
+				break;
+			case $text === '/updatedriver'://Udah bisa
+				$this->showUpdateDriver($chatid, $username, $text);
+				break;
+			case $text === '/pesandriver'://udah bisa
+				$this->aturPic($chatid);
+				break;
       case $text === '/updatetiket'://udah bisa
         $this->updateTiket($chatid, $text, $username);
         break;
-      // case $text==='/cek':
-      //   $this->updateLog($chatid);
-      //   break;
-      // case $text==='/tiket'://udah bisa
-      //   $this->showDataTiket($chatid);
-      //   break;
-      // case $text==='/urus'://udah bisa
-      //   $this->setDriver($chatid, $username, $text);
-      //   break;
+			/*BUAT UPDATE DRIVER*/
+			case substr($text,0,7) === '/upddrv':
+				$listparams = substr($text,7);
+				$params = explode('#',$listparams);
+				unset($params[0]);
+				$params = array_values($params);
 
+				if(count($params)==1){
+					$this->confirmDriver($chatid, $params);
+				}elseif(count($params)==2){
+					if($params[1]=="set"){
+						$this->setPic($chatid, $params);
+					}else{
+						$this->releaseDriver($chatid, $params);
+					}
+				}elseif(count($params)==3){
+					// $callback_query_id=0;
+					$month_input = date("Y-m");
+					$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
+				}elseif(count($params)==4){
+					// $callback_query_id=0;
+					$this->setLocation($chatid, $params);
+				}elseif(count($params)==5){
+					// $callback_query_id=0;
+					$this->saveTheUpdates($chatid, $params, $username);
+				}//end elseif
+				break;
+
+				/*BUAT PESAN DRIVER*/
+				case substr($text,0,7) === '/psndrv':
+					$listparams = substr($text,7);
+					$params = explode('#',$listparams);
+					unset($params[0]);
+					$params = array_values($params);
+
+					if(count($params)==1){
+						$this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
+					}elseif(count($params)==2){
+						$this->lokasi($chatid, $params);
+					}elseif(count($params)==3){
+						$this->simpanPesanan($chatid, $params, $username);
+					}
+					//$response_txt .= "Mengenal command dan berhasil merespon\n";
+					break;
+
+      /*BUAT UPDATE TIKET*/
       case substr($text,0,7) === '/updtkt':
         $listparams = substr($text,7);
         $params = explode('#',$listparams);
@@ -53,21 +107,22 @@ class tes extends Controller
           $this->setDriver($chatid, $params);
         }else{
           $this->updateLog($chatid, $params);
-          // $this->statusDriver($params);
-          // $this->statusPemesanan($params);
         }
-      //   //$response_txt .= "Mengenal command dan berhasil merespon\n";
-      //   break;
-      //
-      // case substr($text,0,6) === 'change':
-      //   $month_input = substr($text,6,7);
-      //   $this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
       break;
 
-      default:
-         $this->defaultMessage($chatid, $text, $username);
-         break;
-    }//end switch
+			case substr($text,0,6) === 'change':
+				$month_input = substr($text,6,7);
+				$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
+				break;
+
+			case substr($text,0,4) === 'ubah':
+				$month_input = substr($text,4,7);
+				$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
+				break;
+			default:
+				 $this->defaultMessage($chatid, $text, $username);
+				 break;
+		}//end switch
   }//akhir fungsi respond
 
 }//akhir kelas
