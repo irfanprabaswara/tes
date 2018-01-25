@@ -20,6 +20,72 @@ use Illuminate\Support\Facades\Log;
 class updatedriver extends Controller
 {//awal kelas
 
+  public function respond()
+  {
+  $telegram = new Api (env('TELEGRAM_BOT_TOKEN'));
+  $request = Telegram::getUpdates();
+  $request = collect(end($request));
+
+    $chatid = $request['message']['chat']['id'];
+    $text = $request['message']['text'];
+    $username=$request['message']['chat']['username'];
+
+
+		switch($text)
+		{//mulai switch
+			case $text === '/start'://udah bisa
+				$this->showWelcomeMessage($chatid);
+				break;
+			case $text==='/menu'://udah bisa
+				$this->showMenu($chatid);
+				break;
+			case $text === 'website'://udah bisa
+				 $this->showWebsite($chatid, $callback_query_id);
+					 break;
+			case $text === 'contact'://udah bisa
+				 $this->showContact($chatid, $callback_query_id);
+				 break;
+			case $text === '/driver'://udah bisa
+				$this->showDriverList($chatid, $username, $text);
+				break;
+			case $text === '/updatedriver'://Udah bisa
+				$this->showUpdateDriver($chatid, $username, $text);
+				break;
+			/*BUAT UPDATE DRIVER*/
+			case substr($text,0,7) === '/upddrv':
+				$listparams = substr($text,7);
+				$params = explode('#',$listparams);
+				unset($params[0]);
+				$params = array_values($params);
+
+				if(count($params)==1){
+					$this->confirmDriver($chatid, $params);
+				}elseif(count($params)==2){
+					if($params[1]=="set"){
+						$this->setPic($chatid, $params);
+					}else{
+						$this->releaseDriver($chatid, $params);
+					}
+				}elseif(count($params)==3){
+					// $callback_query_id=0;
+					$month_input = date("Y-m");
+					$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
+				}elseif(count($params)==4){
+					// $callback_query_id=0;
+					$this->setLocation($chatid, $params);
+				}elseif(count($params)==5){
+					// $callback_query_id=0;
+					$this->saveTheUpdates($chatid, $params, $username);
+				}//end elseif
+				break;
+
+			case substr($text,0,6) === 'change':
+				$month_input = substr($text,6,7);
+				$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
+				break;
+		}//end switch
+  }//akhir fungsi respond
+
 	public function webhook()
   {//awal fungsi webhook
 		try{//awal try

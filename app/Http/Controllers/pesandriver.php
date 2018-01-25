@@ -19,6 +19,58 @@ use Illuminate\Support\Facades\Log;
 
 class pesandriver extends Controller
 {//awal kelas
+
+	public function respond()
+  {
+  $telegram = new Api (env('TELEGRAM_BOT_TOKEN'));
+  $request = Telegram::getUpdates();
+  $request = collect(end($request));
+
+    $chatid = $request['message']['chat']['id'];
+    $text = $request['message']['text'];
+    $username=$request['message']['chat']['username'];
+
+
+		switch($text)
+		{//mulai switch
+			case $text === '/start'://udah bisa
+				$this->showWelcomeMessage($chatid);
+				break;
+
+			case $text === '/pesandriver'://udah bisa
+				$this->aturPic($chatid);
+				break;
+
+				/*BUAT PESAN DRIVER*/
+				case substr($text,0,7) === '/psndrv':
+					$listparams = substr($text,7);
+					$params = explode('#',$listparams);
+					unset($params[0]);
+					$params = array_values($params);
+
+					if(count($params)==1){
+						$month_input = date("Y-m");
+						$this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
+					}elseif(count($params)==2){
+						$this->lokasi($chatid, $params);
+					}elseif(count($params)==3){
+						$this->simpanPesanan($chatid, $params, $username);
+					}
+					//$response_txt .= "Mengenal command dan berhasil merespon\n";
+					break;
+
+			case substr($text,0,4) === 'ubah':
+				$month_input = substr($text,4,7);
+				$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
+				break;
+			default:
+				 $this->defaultMessage($chatid, $text, $username);
+				 break;
+		}//end switch
+  }//akhir fungsi respond
+
+
+
 	public function webhook()
 	{
 	try{//awal try
@@ -43,11 +95,8 @@ class pesandriver extends Controller
 				case $text === '/start':
 					$this->defaultMessage($chatid, $text, $username);
 					break;
-				case $text === 'pesandriver'://udah bisa
-					$this->aturPic($chatid,$callback_query_id);
-					break;
-				case $text==='/menu':
-					$this->aturPic($chatid,$callback_query_id);
+				case $text === '/pesandriver'://udah bisa
+					$this->aturPic($chatid);
 					break;
 
 				case substr($text,0,7) === '/psndrv':
@@ -83,25 +132,25 @@ class pesandriver extends Controller
 		}//end catch
 	}//akhir fungsi webhook
 
-	public function apaya($chatid, $info = null)//PERBAIKI
-  {//awal fungsi
-		// this will create keyboard buttons for users to touch instead of typing commands
-		$inlineLayout = [[
-			Keyboard::inlineButton(['text' => 'Pesan Driver', 'callback_data' => 'pesandriver'])
-		]];
-
-		// create an instance of the replyKeyboardMarkup method
-		$keyboard = Telegram::replyKeyboardMarkup([
-			'inline_keyboard' => $inlineLayout
-		]);
-
-		// Now send the message with they keyboard using 'reply_markup' parameter
-		$response = Telegram::sendMessage([
-			'chat_id' => $chatid,
-			'text' => 'Keyboard',
-			'reply_markup' => $keyboard
-		]);
-	}//akhir fungsi
+	// public function apaya($chatid, $info = null)//PERBAIKI
+  // {//awal fungsi
+	// 	// this will create keyboard buttons for users to touch instead of typing commands
+	// 	$inlineLayout = [[
+	// 		Keyboard::inlineButton(['text' => 'Pesan Driver', 'callback_data' => 'pesandriver'])
+	// 	]];
+  //
+	// 	// create an instance of the replyKeyboardMarkup method
+	// 	$keyboard = Telegram::replyKeyboardMarkup([
+	// 		'inline_keyboard' => $inlineLayout
+	// 	]);
+  //
+	// 	// Now send the message with they keyboard using 'reply_markup' parameter
+	// 	$response = Telegram::sendMessage([
+	// 		'chat_id' => $chatid,
+	// 		'text' => 'Keyboard',
+	// 		'reply_markup' => $keyboard
+	// 	]);
+	// }//akhir fungsi
 
 	public function lokasi($chatid, $params)//fungsi buat milih tujuan kerja
   {//awal fungsi
@@ -232,14 +281,8 @@ class pesandriver extends Controller
 		return $calendar;
 	}//akhir fungsi create calendar
 
-	public function aturPic($chatid, $cbid)
+	public function aturPic($chatid)
 	{//awal fungsi pic
-		if($cbid != 0){
-		$responses = Telegram::answerCallbackQuery([
-			'callback_query_id' => $cbid,
-			'text' => '',
-			'show_alert' => false
-		]);
 		$message="";
 		$pic = [];
 		$result=DB::table('driver')->where(['status'=>""])->get();
@@ -314,8 +357,8 @@ class pesandriver extends Controller
 	public function simpanPesanan($chatid, $params, $username)
   {//awal fungsi
 		$status="";
-		$result = DB::table('pemesanan')->insert(['pic'=>$params[0],'chatid'=>$chatid,'tanggal'=>$params[1], 'lokasi'=>$params[2]]);
-		$pesan="Hallo, ada pemesanan dari bagian ".$params[0]." dengan tujuan ".$params[2]." pada tanggal ".$params[1].". Silakan click /updatetiket untuk memproses tiket yang ada";
+		$result = DB::table('pemesanan')->insert(['pic'=>$params[0],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[1], 'lokasi'=>$params[2]]);
+		$pesan="Hallo, ada pemesanan dari bagian ".$params[0]." atas nama ".$username." dengan tujuan ".$params[2]." pada tanggal ".$params[1].". Silakan click /updatetiket untuk memproses tiket yang ada";
 		$message = "*Pemesanan Berhasil*\n";
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
