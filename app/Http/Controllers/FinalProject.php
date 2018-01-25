@@ -54,10 +54,55 @@ class FinalProject extends Controller
 			case $text === '/pesandriver'://udah bisa
 				$this->aturPic($chatid);
 				break;
-      case $text === '/updatetiket'://udah bisa
-        $this->updateTiket($chatid, $text, $username);
-        break;
-			/*BUAT UPDATE DRIVER*/
+			case $text === '/updatetiket'://udah bisa
+				$this->updateTiket($chatid, $text, $username);
+				break;
+			case $text === '/selesai'://BUAT CONFIRM DRIVER SELESAI BERTUGAS
+				 $this->konfirmasi($chatid, $username, $text);
+				 break;
+			//BUAT CONFIRM DRIVER SELESAI BERTUGAS
+			case substr($text,0,8) === '/confirm':
+				 $listparams = substr($text,8);
+				 $params = explode('#',$listparams);
+				 unset($params[0]);
+				 $params = array_values($params);
+
+					if(count($params)==1){
+						$this->updateStatusDriver($chatid, $params);
+					}
+				break;
+			//BUAT UPDATE TIKET
+			case substr($text,0,7) === '/updtkt':
+				$listparams = substr($text,7);
+				$params = explode('#',$listparams);
+				unset($params[0]);
+				$params = array_values($params);
+
+				if(count($params)==1){
+					$this->showDataTiket($chatid, $params);
+					$this->setDriver($chatid, $params);
+				}else{
+					$this->updateLog($chatid, $params);
+				}
+			break;
+			//BUAT PESAN DRIVER
+			case substr($text,0,7) === '/psndrv':
+				$listparams = substr($text,7);
+				$params = explode('#',$listparams);
+				unset($params[0]);
+				$params = array_values($params);
+
+				if(count($params)==1){
+					$month_input = date("Y-m");
+					$this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
+				}elseif(count($params)==2){
+					$this->lokasi($chatid, $params);
+				}elseif(count($params)==3){
+					$this->simpanPesanan($chatid, $params, $username);
+				}
+				//$response_txt .= "Mengenal command dan berhasil merespon\n";
+				break;
+			//BUAT UPDATE DRIVER
 			case substr($text,0,7) === '/upddrv':
 				$listparams = substr($text,7);
 				$params = explode('#',$listparams);
@@ -83,46 +128,14 @@ class FinalProject extends Controller
 					// $callback_query_id=0;
 					$this->saveTheUpdates($chatid, $params, $username);
 				}//end elseif
+
+				//$response_txt .= "Mengenal command dan berhasil merespon\n";
 				break;
-
-				/*BUAT PESAN DRIVER*/
-				case substr($text,0,7) === '/psndrv':
-					$listparams = substr($text,7);
-					$params = explode('#',$listparams);
-					unset($params[0]);
-					$params = array_values($params);
-
-					if(count($params)==1){
-						$month_input = date("Y-m");
-						$this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
-					}elseif(count($params)==2){
-						$this->lokasi($chatid, $params);
-					}elseif(count($params)==3){
-						$this->simpanPesanan($chatid, $params, $username);
-					}
-					//$response_txt .= "Mengenal command dan berhasil merespon\n";
-					break;
-
-      /*BUAT UPDATE TIKET*/
-      case substr($text,0,7) === '/updtkt':
-        $listparams = substr($text,7);
-        $params = explode('#',$listparams);
-        unset($params[0]);
-        $params = array_values($params);
-
-        if(count($params)==1){
-          $this->showDataTiket($chatid, $params);
-          $this->setDriver($chatid, $params);
-        }else{
-          $this->updateLog($chatid, $params);
-        }
-      break;
 
 			case substr($text,0,6) === 'change':
 				$month_input = substr($text,6,7);
 				$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
 				break;
-
 			case substr($text,0,4) === 'ubah':
 				$month_input = substr($text,4,7);
 				$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
@@ -190,7 +203,21 @@ class FinalProject extends Controller
 				case $text === '/updatetiket'://udah bisa
 					$this->updateTiket($chatid, $text, $username);
 					break;
+				case $text === '/selesai'://BUAT CONFIRM DRIVER SELESAI BERTUGAS
+	         $this->konfirmasi($chatid, $username, $text);
+	         break;
+				//BUAT CONFIRM DRIVER SELESAI BERTUGAS
+	      case substr($text,0,8) === '/confirm':
+	         $listparams = substr($text,8);
+	         $params = explode('#',$listparams);
+	         unset($params[0]);
+	         $params = array_values($params);
 
+	          if(count($params)==1){
+	            $this->updateStatusDriver($chatid, $params);
+	          }
+	        break;
+				//BUAT UPDATE TIKET
 				case substr($text,0,7) === '/updtkt':
 					$listparams = substr($text,7);
 					$params = explode('#',$listparams);
@@ -204,7 +231,7 @@ class FinalProject extends Controller
 						$this->updateLog($chatid, $params);
 					}
 				break;
-
+				//BUAT PESAN DRIVER
 				case substr($text,0,7) === '/psndrv':
 					$listparams = substr($text,7);
 					$params = explode('#',$listparams);
@@ -221,7 +248,7 @@ class FinalProject extends Controller
 					}
 					//$response_txt .= "Mengenal command dan berhasil merespon\n";
 					break;
-
+				//BUAT UPDATE DRIVER
 				case substr($text,0,7) === '/upddrv':
 					$listparams = substr($text,7);
 					$params = explode('#',$listparams);
@@ -1045,6 +1072,65 @@ class FinalProject extends Controller
 			'text' => $message
 		]);
   }//akhir fungsi show tiket
+
+
+
+	/*
+		INI KODE KONFIRMASI DRIVER SELESAI BERTUGAS
+		SELAMAT MENIKMATI
+	*/
+	public function konfirmasi($chatid, $username, $text)
+  {//awal fungsi konfirmasi
+    $get=DB::table('driver')->where(['id'=>$chatid])->first();
+    $getStatus=[];
+    $getStatus=$get->status;
+    $idDriver=[];
+    $idDriver=$chatid;
+    if ($getStatus==='Terpakai'){
+    $pesanDriver="Terima kasih atas konfirmasi dan kerjasama anda.";
+    $message="Driver atas nama ".$username." telah selesai mengerjakan tugas. Silakan click disini untuk mengubah status driver yang bersangkutan menjadi stanby";
+    $inlineLayout = [[
+			Keyboard::inlineButton(['text' => 'DISINI', 'callback_data' => '/confirm#'.$idDriver])
+		]];
+
+    $response = Telegram::sendMessage([
+			'chat_id' => $chatid,
+			'text' => $pesanDriver
+		]);
+
+    $reply_markup = Telegram::replyKeyboardMarkup([
+			'resize_keyboard' => true,
+			'one_time_keyboard' => true,
+		  'inline_keyboard' => $inlineLayout
+		]);
+
+    $response = Telegram::sendMessage([
+		  'chat_id' => 437329516,
+		  'parse_mode' => 'markdown',
+		  'text' => $message,
+		  'reply_markup' => $reply_markup
+		]);
+
+    }else {
+      $response = Telegram::sendMessage([
+  			'chat_id' => $chatid,
+  			'text' => "Anda masih dalam status STANDBY".$text
+  		]);
+    }//akhir else
+  }//akhir fungsi konfirmasi
+
+  public function updateStatusDriver($chatid, $params)
+  {//awal fungsi updateLog
+    $idDriver=$params[0];
+		$statusDriver="";
+    DB::table('driver')->where(['id'=>$idDriver])->update(['status'=>$statusDriver]);
+    $message="Status driver telah terupdate";
+
+    $response = Telegram::sendMessage([//buat ngirim ke pemesan
+			'chat_id' => $chatid,
+			'text' => $message
+		]);
+	}//akhir fungsi updateLog
 
 }//akhir kelas
 ?>

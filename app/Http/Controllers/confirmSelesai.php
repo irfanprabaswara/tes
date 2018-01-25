@@ -36,7 +36,7 @@ class confirmSelesai extends Controller
         $this->defaultMessage($chatid, $text, $username);
         break;
       case $text === '/selesai'://udah bisa
-        $this->konfirmasi($chatid, $username);
+        $this->konfirmasi($chatid, $username, $text);
         break;
 
       case substr($text,0,8) === '/confirm':
@@ -81,7 +81,7 @@ class confirmSelesai extends Controller
           $this->defaultMessage($chatid, $text, $username);
           break;
         case $text === '/selesai'://udah bisa
-          $this->konfirmasi($chatid, $username);
+          $this->konfirmasi($chatid, $username, $text);
           break;
 
         case substr($text,0,8) === '/confirm':
@@ -114,7 +114,7 @@ class confirmSelesai extends Controller
     $getStatus=$get->status;
     $idDriver=[];
     $idDriver=$chatid;
-    if ($getstatus==='Terpakai'){
+    if ($getStatus==='Terpakai'){
     $pesanDriver="Terima kasih atas konfirmasi dan kerjasama anda.";
     $message="Driver atas nama ".$username." telah selesai mengerjakan tugas. Silakan click disini untuk mengubah status driver yang bersangkutan menjadi stanby";
     $inlineLayout = [[
@@ -142,8 +142,7 @@ class confirmSelesai extends Controller
     }else {
       $response = Telegram::sendMessage([
   			'chat_id' => $chatid,
-  			// 'parse_mode' => 'markdown',
-  			'text' => "Belum Kerja".$text
+  			'text' => "Anda masih dalam status STANDBY".$text
   		]);
     }//akhir else
   }//akhir fungsi konfirmasi
@@ -156,7 +155,7 @@ class confirmSelesai extends Controller
     $message="Status driver telah terupdate";
 
     $response = Telegram::sendMessage([//buat ngirim ke pemesan
-			'chat_id' => $get->chatid,
+			'chat_id' => $chatid,
 			'text' => $message
 		]);
 	}//akhir fungsi updateLog
