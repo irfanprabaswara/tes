@@ -222,17 +222,17 @@ class updatetiket extends Controller
     $result = DB::table('pemesanan')->where(['status'=>null])->get();
     if ($result->count()>0){
     $message = "*PILIH TIKET YANG AKAN DI-UPDATE* \n\n";
-		$max_col = 2;
+		$max_col = 1;
 		$col =0;
 		if ($result->count()>0){
 			for ($i=0;$i<$result->count();$i++){
 				if($col<$max_col){
-					$tiketperrow[] = Keyboard::inlineButton(['text' => $result[$i]->no_tiket, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
+					$tiketperrow[] = Keyboard::inlineButton(['text' =>"NOMOR TIKET : ".$result[$i]->no_tiket.",  TANGGAL PENGGUNAAN : ".$result[$i]->tanggal, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
 				}else{
 					$col=0;
 					$tiket[] = $tiketperrow;
 					$tiketperrow = [];
-					$tiketperrow[] = Keyboard::inlineButton(['text' => $result[$i]->no_tiket, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
+					$tiketperrow[] = Keyboard::inlineButton(['text' =>"NOMOR TIKET : ".$result[$i]->no_tiket.",  TANGGAL PENGGUNAAN : ".$result[$i]->tanggal, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
 				}//end else
 				$col++;
 			}//end for
