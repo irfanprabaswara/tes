@@ -112,7 +112,7 @@ class loop extends Controller
 				break;
       case substr($text,0,6) === 'change':
   			$month_input = substr($text,6,7);
-  			$this->createCalendar($month_input);
+  			$this->changeCalendar($chatid, $messageid, $month_input);
   			break;
 		}//end switch
   }//akhir fungsi respond
@@ -160,7 +160,7 @@ class loop extends Controller
 		]);
 	}//akhir fungsi
 
-	public function changeCalendar($chatid, $messageid, $month_input)
+	public function changeCalendar($chatid, $messageid, $month_input)//masih error
   {//awal fungsi
 		// if($cbid != 0){
 		// 	$responses = Telegram::answerCallbackQuery([
@@ -177,7 +177,7 @@ class loop extends Controller
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
 			'one_time_keyboard' => true,
-		    'inline_keyboard' => $calendar
+		  'inline_keyboard' => $calendar
 		]);
 
 		$response = Telegram::editMessageText([
