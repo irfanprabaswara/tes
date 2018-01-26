@@ -122,15 +122,6 @@ class coba extends Controller
 				case $text === '/start'://udah bisa
 					$this->showWelcomeMessage($chatid);
 					break;
-				case $text==='/menu'://udah bisa
-					$this->showMenu($chatid);
-					break;
-				case $text === 'website'://udah bisa
-				   $this->showWebsite($chatid, $callback_query_id);
-					   break;
-				case $text === 'contact'://udah bisa
-				   $this->showContact($chatid, $callback_query_id);
-				   break;
 				case $text === '/driver'://udah bisa
 					$this->showDriverList($chatid, $username, $text);
 					break;
@@ -237,62 +228,6 @@ class coba extends Controller
 			'chat_id' => 437329516,
 			// 'parse_mode' => 'markdown',
 			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
-		]);
-	}//akhir fungsi
-
-	public function showMenu($chatid, $info = null)//fungsi buat nampilin menu
-  {//awal fungsi
-		// this will create keyboard buttons for users to touch instead of typing commands
-		$inlineLayout = [[
-			Keyboard::inlineButton(['text' => 'Our site', 'callback_data' => 'website']),
-			Keyboard::inlineButton(['text' => 'Contact Us', 'callback_data' => 'contact'])
-		]];
-
-		// create an instance of the replyKeyboardMarkup method
-		$keyboard = Telegram::replyKeyboardMarkup([
-			'inline_keyboard' => $inlineLayout
-		]);
-
-		// Now send the message with they keyboard using 'reply_markup' parameter
-		$response = Telegram::sendMessage([
-			'chat_id' => $chatid,
-			'text' => 'Keyboard',
-			'reply_markup' => $keyboard
-		]);
-	}//akhir fungsi
-
-	public function showWebsite($chatid, $cbid)//buat nampilin website
-  {//awal fungsi
-	    if($cbid != 0){
-			$responses = Telegram::answerCallbackQuery([
-				'callback_query_id' => $cbid,
-				'text' => '',
-				'show_alert' => false
-			]);
-    }//end if
-		$message = 'Silakan hubungi admin kami di : irfanprabaswara@gmail.com';
-
-		$response = Telegram::sendMessage([
-			'chat_id' => $chatid,
-			'text' => $message
-		]);
-	}//akhir fungsi
-
-	public function showContact($chatid, $cbid)//fungsi buat nampilin contact
-  {//awal fungsi
-		if($cbid != 0){
-			$responses = Telegram::answerCallbackQuery([
-				'callback_query_id' => $cbid,
-				'text' => '',
-				'show_alert' => false
-			]);
-		}//end if
-
-		$message = 'silakah hubungi admin kami di @irfanprabaswara';
-
-		$response = Telegram::sendMessage([
-			'chat_id' => $chatid,
-			'text' => $message
 		]);
 	}//akhir fungsi
 
@@ -468,6 +403,7 @@ class coba extends Controller
 		$message = "";
 		$message .= DateTime::createFromFormat('Y-m-d',$month_input."-01")->format("F Y")." \n";
 		$calendar = $this->createCalendar($month_input, $params);
+
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
 			'one_time_keyboard' => true,
@@ -484,6 +420,9 @@ class coba extends Controller
 
 	public function createCalendar($month_input, $params)//fungsi buat bikin kalender
   {//awal fungsi create calendar
+    // $get=DB::table('driver')->where(['id'=>$params[0]])->first();
+    // $idDriver=$get->id;
+    // $set="set";
 		$calendar = [];
 		$keyboard = [];
 		$maxdate = date("t", strtotime($month_input."-01"));
@@ -525,7 +464,7 @@ class coba extends Controller
 		$driverid = $params[0];
 		$locationlist = ['DALAM KOTA', 'LUAR KOTA'];
 		$message = "*PILIH LOKASI PENUGASAN* \n\n";
-		$max_col = 4;
+		$max_col = 2;
 		$col =0;
 		for ($i=0;$i<count($locationlist);$i++){
 			if($col<$max_col){

@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 //PERLU DIPERHATIKAN
 
-class pesandriver extends Controller
+class try extends Controller
 {//awal kelas
 
 	public function respond()
@@ -131,26 +131,6 @@ class pesandriver extends Controller
 			]);
 		}//end catch
 	}//akhir fungsi webhook
-
-	// public function apaya($chatid, $info = null)//PERBAIKI
-  // {//awal fungsi
-	// 	// this will create keyboard buttons for users to touch instead of typing commands
-	// 	$inlineLayout = [[
-	// 		Keyboard::inlineButton(['text' => 'Pesan Driver', 'callback_data' => 'pesandriver'])
-	// 	]];
-  //
-	// 	// create an instance of the replyKeyboardMarkup method
-	// 	$keyboard = Telegram::replyKeyboardMarkup([
-	// 		'inline_keyboard' => $inlineLayout
-	// 	]);
-  //
-	// 	// Now send the message with they keyboard using 'reply_markup' parameter
-	// 	$response = Telegram::sendMessage([
-	// 		'chat_id' => $chatid,
-	// 		'text' => 'Keyboard',
-	// 		'reply_markup' => $keyboard
-	// 	]);
-	// }//akhir fungsi
 
 	public function lokasi($chatid, $params)//fungsi buat milih tujuan kerja
   {//awal fungsi
@@ -342,17 +322,6 @@ class pesandriver extends Controller
 			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
 		]);
 	}//ini akhir fungsi
-
-	// public function pesanUser($chatid)//ini buat nampilin nomor tiket ke user, tapi masih gagal
-	// {//awal fungsi pesan ke user
-	// 	$result = DB::table('pemesanan')->where(['pic'=>$params[0],'tanggal'=>$params[1], 'lokasi'=>$params[2]])->first();
-	// 	$message = "Pesanan anda dengan nomor tiket : ".$result->nomer_tiket." telah kami terima dan akan kami proses lebih lanjut."
-	// 	$response = Telegram::sendMessage([
-	// 	  'chat_id' => $chatid,//kalo mau ke supirnya tinggal diganti @idDriver
-	// 	  'parse_mode' => 'markdown',
-	// 	  'text' => $message
-	// 	]);
-	// }//akhir fungsi pesan ke user
 
 	public function simpanPesanan($chatid, $params, $username)
   {//awal fungsi

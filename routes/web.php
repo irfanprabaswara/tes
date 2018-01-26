@@ -57,16 +57,17 @@ Route::get('/unset', 'webhook@unsetWebhook');//buat unset webhook
 // Route::post('webhook', 'updatetiket@webhook');//buat update tiket
 // Route::post('webhook', 'confirmSelesai@webhook');//buat confirm kalo udah selesai bertugas
 // Route::post('webhook', 'FinalProject@webhook');//FINAL
-// Route::post('webhook', 'loop@webhook');
-Route::post('webhook', 'coba@webhook');
+Route::post('webhook', 'loop@webhook');
 
+// Route::post('webhook', 'coba@webhook');//updateDriver
+// Route::post('webhook', 'try@webhook');pesanDriver
 
 // Route::get('respond', 'tes@respond');
-// Route::get('respond', 'loop@respond');//buat nge-debug
+Route::get('respond', 'loop@respond');//buat nge-debug
 
 // Route::get('respond', 'updatetiket@respond');//buat nge-debug update tiket
 // Route::get('respond', 'confirmSelesai@respond');//buat nge-debug selesai
-Route::get('respond', 'loop@respond');//buat nge-debug calender
+// Route::get('respond', 'coba@respond');//buat nge-debug calender
 // Route::get('respond', 'FinalProject@respond');//buat nge-debug FINAL
 // Route::get('respond', 'updatedriver@respond');//buat nge-debug updateDriver
 // Route::get('respond', 'pesandriver@respond');//buat nge-debug pesanDriver

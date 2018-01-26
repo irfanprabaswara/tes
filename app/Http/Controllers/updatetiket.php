@@ -158,22 +158,6 @@ class updatetiket extends Controller
 		]);
 	}//akhir fungsi updateLog
 
-  // public function statusDriver($params)//kayanya bener
-  // {//awal fungsi statusDriver
-  //   $nomor=$params[0];
-  //   $idDriver=$params[1];
-  //   $status ="Terpakai";
-  //   $result = DB::table('driver')->where(['id'=>$idDriver])->update(['status'=>$status]);
-  // }//akhir fungsi statusDriver
-  //
-  // public function statusPemesanan($params)//kayanya bener
-  // {//awal fungsi statusPemesanan
-  //   $nomor=$params[0];
-  //   $idDriver=$params[1];
-  //   $status ="SELESAI";
-  //   $result = DB::table('pemesanan')->where(['no_tiket'=>$nomor])->update(['status'=>$status]);
-  // }//akhir fungsi  statusPemesanan
-
   public function setDriver($chatid, $params)//fungsi buat update driver
   {//awal fungsi
 		$driver = [];
