@@ -1060,7 +1060,6 @@ class FinalProject extends Controller
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
 		]);
-
 	}//akhir fungsi
 
 	public function updateTiket($chatid, $text, $username)//udah bisa
