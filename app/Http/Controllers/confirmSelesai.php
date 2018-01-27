@@ -150,7 +150,7 @@ class confirmSelesai extends Controller
   public function updateStatusDriver($chatid, $params)
   {//awal fungsi updateLog
     $idDriver=$params[0];
-		$statusDriver="";
+		$statusDriver="Standby";
     DB::table('driver')->where(['id'=>$idDriver])->update(['status'=>$statusDriver]);
     $message="Status driver telah terupdate";
 

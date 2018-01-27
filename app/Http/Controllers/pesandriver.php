@@ -33,36 +33,39 @@ class pesandriver extends Controller
 
 		switch($text)
 		{//mulai switch
-			case $text === '/start'://udah bisa
-				$this->showWelcomeMessage($chatid);
+			case $text === '/start':
+				$this->defaultMessage($chatid, $text, $username);
 				break;
-
 			case $text === '/pesandriver'://udah bisa
 				$this->aturPic($chatid);
 				break;
+			case $text==='tidakJadi':
+				$this->tidakJadi($chatid);
+				break;
 
-				/*BUAT PESAN DRIVER*/
-				case substr($text,0,7) === '/psndrv':
-					$listparams = substr($text,7);
-					$params = explode('#',$listparams);
-					unset($params[0]);
-					$params = array_values($params);
+			case substr($text,0,7) === '/psndrv':
+				$listparams = substr($text,7);
+				$params = explode('#',$listparams);
+				unset($params[0]);
+				$params = array_values($params);
 
-					if(count($params)==1){
-						$month_input = date("Y-m");
-						$this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
-					}elseif(count($params)==2){
-						$this->lokasi($chatid, $params);
-					}elseif(count($params)==3){
-						$this->simpanPesanan($chatid, $params, $username);
-					}
-					//$response_txt .= "Mengenal command dan berhasil merespon\n";
-					break;
+				if(count($params)==1){
+					$this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
+				}elseif(count($params)==2){
+					$this->lokasi($chatid, $params);
+				}elseif(count($params)==3){
+					$this->cekPesan($chatid, $params);
+				}elseif (count($params)==4) {
+					$this->simpanPesanan($chatid, $params, $username);
+				}
+				//$response_txt .= "Mengenal command dan berhasil merespon\n";
+				break;
 
 			case substr($text,0,4) === 'ubah':
 				$month_input = substr($text,4,7);
 				$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
 				break;
+
 			default:
 				 $this->defaultMessage($chatid, $text, $username);
 				 break;
@@ -110,6 +113,8 @@ class pesandriver extends Controller
 					}elseif(count($params)==2){
 						$this->lokasi($chatid, $params);
 					}elseif(count($params)==3){
+						$this->cekPesan($chatid, $params);
+					}elseif (count($params)==4) {
 						$this->simpanPesanan($chatid, $params, $username);
 					}
 					//$response_txt .= "Mengenal command dan berhasil merespon\n";
@@ -132,25 +137,48 @@ class pesandriver extends Controller
 		}//end catch
 	}//akhir fungsi webhook
 
-	// public function apaya($chatid, $info = null)//PERBAIKI
-  // {//awal fungsi
-	// 	// this will create keyboard buttons for users to touch instead of typing commands
-	// 	$inlineLayout = [[
-	// 		Keyboard::inlineButton(['text' => 'Pesan Driver', 'callback_data' => 'pesandriver'])
-	// 	]];
-  //
-	// 	// create an instance of the replyKeyboardMarkup method
-	// 	$keyboard = Telegram::replyKeyboardMarkup([
-	// 		'inline_keyboard' => $inlineLayout
-	// 	]);
-  //
-	// 	// Now send the message with they keyboard using 'reply_markup' parameter
-	// 	$response = Telegram::sendMessage([
-	// 		'chat_id' => $chatid,
-	// 		'text' => 'Keyboard',
-	// 		'reply_markup' => $keyboard
-	// 	]);
-	// }//akhir fungsi
+	public function cekPesan($chatid, $params)
+	{//awal fungsi
+		$setlist=['BENAR','CANCEL'];
+		$message = "*DETAIL PESANAN ANDA*\n\n";
+		$message .= "BAGIAN ANDA : ".$params[0]."\n";
+		$message .= "TANGGAL PENUGASAN : ".$params[1]."\n";
+		$message .= "LOKASI PENUGASAN : ".$params[2]."\n\n";
+		$message .= "SILAKAN KLIK BENAR UNTUK MELANJUTKAN PEMESANAN DRIVER\n";
+
+		$max_col = 2;
+		$col =0;
+		for ($i=0;$i<count($setlist);$i++){
+			if($col<$max_col){
+				$setperrow[] = Keyboard::inlineButton(['text' => $setlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$params[2]."#".$setlist[$i]]);
+			}else{
+				$col=0;
+				$set[] = $setperrow;
+				$set = [];
+				$set[] = Keyboard::inlineButton(['text' => $setlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$params[2]."#".$setlist[$i]]);
+			}//end else
+			$col++;
+		}//end for
+		if($col>0){
+			$col=0;
+			$set[] = $setperrow;
+		}//end if
+
+		// create an instance of the replyKeyboardMarkup method
+		$keyboard = Telegram::replyKeyboardMarkup([
+			'resize_keyboard' => true,
+			'one_time_keyboard' => true,
+			'inline_keyboard' => $set
+		]);
+
+		// Now send the message with they keyboard using 'reply_markup' parameter
+		$response = Telegram::sendMessage([
+			'chat_id' => $chatid,
+			'text' => $message,
+			'parse_mode' => 'markdown',
+			'reply_markup' => $keyboard
+		]);
+	}//akhir fungsi
 
 	public function lokasi($chatid, $params)//fungsi buat milih tujuan kerja
   {//awal fungsi
@@ -158,7 +186,7 @@ class pesandriver extends Controller
 		$location = [];
 		$locationlist = ['DALAM KOTA', 'LUAR KOTA'];
 		$message = "*PILIH LOKASI PENUGASAN* \n\n";
-		$max_col = 4;
+		$max_col = 2;
 		$col =0;
 		for ($i=0;$i<count($locationlist);$i++){
 			if($col<$max_col){
@@ -285,7 +313,7 @@ class pesandriver extends Controller
 	{//awal fungsi pic
 		$message="";
 		$pic = [];
-		$result=DB::table('driver')->where(['status'=>""])->get();
+		$result=DB::table('driver')->where(['status'=>"Standby"])->get();
 		$piclist = ['LOG','SDM','MRK','LEGAL','OJL','ECH','KONSUMER','AO','BIT','ARK','ADK','RPKB','EBK','PRG','DJS','BRILINK','RTL','MKR','WPO','WPB1','WPB2','WPB3','WPB4','PINWIL','KANPUS','PIHAK LUAR','LAIN-LAIN'];
 		$message = "*PILIH PIC YANG PESAN* \n\n";
 		$max_col = 4;
@@ -357,6 +385,8 @@ class pesandriver extends Controller
 	public function simpanPesanan($chatid, $params, $username)
   {//awal fungsi
 		$status="";
+		if($params[3]==="BENAR"){
+		$status="";
 		$result = DB::table('pemesanan')->insert(['pic'=>$params[0],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[1], 'lokasi'=>$params[2]]);
 		$pesan="Hallo, ada pemesanan dari bagian ".$params[0]." atas nama ".$username." dengan tujuan ".$params[2]." pada tanggal ".$params[1].". Silakan click /updatetiket untuk memproses tiket yang ada";
 		$message = "*Pemesanan Berhasil*\n";
@@ -371,6 +401,13 @@ class pesandriver extends Controller
 		  'parse_mode' => 'markdown',
 		  'text' => $pesan
 		]);
+	}else {
+		$message = "Silakan klik /pesandriver untuk melakukan pemesanan ulang";
+		$response=Telegram::sendMessage([
+			'chat_id'=>$chatid,
+			'text'=>$message
+		]);
+	}//akhir else
 	}//akhir fungsi
 
 }//akhir kelas

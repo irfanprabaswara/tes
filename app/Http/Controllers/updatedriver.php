@@ -218,8 +218,8 @@ class updatedriver extends Controller
 		if ($result->count()>0){
 			for ($i=0;$i<$result->count();$i++){
 				$message .= "*".$result[$i]->nama."*\n";
-				if($result[$i]->status ==""){
-					$message .= "Status : Kosong\n";
+				if($result[$i]->status =="Standby"){
+					$message .= "Status : Standby\n";
 				}else{
 					$message .= "Status : ".$result[$i]->status."\n";
 				}
@@ -303,17 +303,17 @@ class updatedriver extends Controller
 		$message="";
 		$result = DB::table('driver')->get();
 		$message = "*PILIH DRIVER YANG AKAN DI-UPDATE* \n\n";
-		$max_col = 3;
+		$max_col = 2;
 		$col =0;
 		if ($result->count()>0){
 			for ($i=0;$i<$result->count();$i++){
 				if($col<$max_col){
-					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/upddrv#'.$result[$i]->id]);
+					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama."(".$result[$i]->status.")", 'callback_data' => '/upddrv#'.$result[$i]->id]);
 				}else{
 					$col=0;
 					$driver[] = $driverperrow;
 					$driverperrow = [];
-					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/upddrv#'.$result[$i]->id]);
+					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama."(".$result[$i]->status.")", 'callback_data' => '/upddrv#'.$result[$i]->id]);
 				}//end else
 				$col++;
 			}//end for
@@ -381,7 +381,7 @@ class updatedriver extends Controller
 
 	public function releaseDriver($chatid, $params)
   {//awal fungsi
-		$result = DB::table('driver')->where(['Id'=>$params[0]])->update(['status'=>""]);
+		$result = DB::table('driver')->where(['Id'=>$params[0]])->update(['status'=>"Standby"]);
 		$message = "Data Driver berhasil terupdate\n";
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,

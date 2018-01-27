@@ -135,7 +135,7 @@ class updatetiket extends Controller
     $statusTiket="SELESAI";
     $get = DB::table('pemesanan')->where(['no_tiket'=>$nomor])->first();
     $result = DB::table('driver')->where(['id'=>$idDriver])->first();
-    DB::table('log_driver')->insert(['tanggal'=>date('Y-m-d H:i:s'),'id'=>$idDriver,'pic'=>$get->pic,'tanggal_mulai'=>$get->tanggal, 'lokasi'=>$get->lokasi]);
+    DB::table('log_driver')->insert(['tanggal'=>date('Y-m-d H:i:s'),'id'=>$idDriver,'no_tiket'=>$get->no_tiket,'pic'=>$get->pic,'tanggal_mulai'=>$get->tanggal, 'lokasi'=>$get->lokasi]);
     DB::table('pemesanan')->where(['no_tiket'=>$nomor])->update(['status'=>$statusTiket]);
     DB::table('driver')->where(['id'=>$idDriver])->update(['status'=>$statusDriver]);
 		$pesan="Hallo, anda telah dipesan oleh bagian ".$get->pic." atas nama ".$get->username." dengan tanggal keberangkatan ".$get->tanggal." dengan tujuan ".$get->lokasi."";
@@ -203,56 +203,57 @@ class updatetiket extends Controller
 
   public function updateTiket($chatid, $text, $username)//udah bisa
   {//awal fungsi update tiket
+    $today=date('Y-m-d H:i:s');
     $result = DB::table('pemesanan')->where(['status'=>null])->get();
     if ($result->count()>0){
-    $message = "*PILIH TIKET YANG AKAN DI-UPDATE* \n\n";
-		$max_col = 1;
-		$col =0;
-		if ($result->count()>0){
-			for ($i=0;$i<$result->count();$i++){
-				if($col<$max_col){
-					$tiketperrow[] = Keyboard::inlineButton(['text' =>"NOMOR TIKET : ".$result[$i]->no_tiket.",  TANGGAL PENGGUNAAN : ".$result[$i]->tanggal, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
-				}else{
-					$col=0;
-					$tiket[] = $tiketperrow;
-					$tiketperrow = [];
-					$tiketperrow[] = Keyboard::inlineButton(['text' =>"NOMOR TIKET : ".$result[$i]->no_tiket.",  TANGGAL PENGGUNAAN : ".$result[$i]->tanggal, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
-				}//end else
-				$col++;
-			}//end for
-		}//end if
-		if($col>0){
-			$col=0;
-			$tiket[] = $tiketperrow;
-		}//end if
+      $message = "*PILIH TIKET YANG AKAN DI-UPDATE* \n\n";
+  		$max_col = 1;
+  		$col =0;
+  		if ($result->count()>0){
+  			for ($i=0;$i<$result->count();$i++){
+  				if($col<$max_col){
+  					$tiketperrow[] = Keyboard::inlineButton(['text' =>"NOMOR TIKET : ".$result[$i]->no_tiket.",  TANGGAL PENGGUNAAN : ".$result[$i]->tanggal, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
+  				}else{
+  					$col=0;
+  					$tiket[] = $tiketperrow;
+  					$tiketperrow = [];
+  					$tiketperrow[] = Keyboard::inlineButton(['text' =>"NOMOR TIKET : ".$result[$i]->no_tiket.",  TANGGAL PENGGUNAAN : ".$result[$i]->tanggal, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
+  				}//end else
+  				$col++;
+  			}//end for
+  		}//end if
+  		if($col>0){
+  			$col=0;
+  			$tiket[] = $tiketperrow;
+  		}//end if
 
-    $reply_markup = Telegram::replyKeyboardMarkup([
-			'resize_keyboard' => true,
-			'one_time_keyboard' => true,
-		  'inline_keyboard' => $tiket
-		]);
+      $reply_markup = Telegram::replyKeyboardMarkup([
+  			'resize_keyboard' => true,
+  			'one_time_keyboard' => true,
+  		  'inline_keyboard' => $tiket
+  		]);
 
-		$response = Telegram::sendMessage([
-		  'chat_id' => $chatid,
-		  'parse_mode' => 'markdown',
-		  'text' => $message,
-		  'reply_markup' => $reply_markup
-		]);
+  		$response = Telegram::sendMessage([
+  		  'chat_id' => $chatid,
+  		  'parse_mode' => 'markdown',
+  		  'text' => $message,
+  		  'reply_markup' => $reply_markup
+  		]);
 
-		$response = Telegram::sendMessage([
-			'chat_id' => 437329516,
-			// 'parse_mode' => 'markdown',
-			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
-		]);
+  		$response = Telegram::sendMessage([
+  			'chat_id' => 437329516,
+  			// 'parse_mode' => 'markdown',
+  			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
+  		]);
 
   }else {
     $message = "*TIKET KOSONG*";
     $response = Telegram::sendMessage([
-		  'chat_id' => $chatid,
-		  // 'parse_mode' => 'markdown',
-		  'text' => $message
-		]);
-  }//end else
+  	  'chat_id' => $chatid,
+  	  'parse_mode' => 'markdown',
+  	  'text' => $message
+  	]);
+    }//end else
   }//akhir fungsi update tiket
 
   public function showDataTiket($chatid, $params)//udah bisa tampil

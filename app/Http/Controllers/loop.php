@@ -81,6 +81,9 @@ class loop extends Controller
           // changeCalendar($chatid, $messageid, $month_input, $params)
     			$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
     			break;
+        default :
+          $this->defaultMessage($chatid, $text, $username);
+          break;
   		}//end switch
 
 		}catch (\Exception $e) {
@@ -101,38 +104,37 @@ class loop extends Controller
   //   $text = $request['message']['text'];
   //   $username=$request['message']['chat']['username'];
   //
+  //   switch($text)
+  //   {//mulai switch
+  //     // case $text === '/calendar'://Udah bisa
+  //     //   $month_input = date("Y-m");
+  //     // 	$this->showCalendar($chatid, $month_input);
+  //     // 	break;
+  //     case $text==='/tes':
+  //       $this->pesanTes($chatid);
+  //       break;
+  //     /*BUAT UPDATE DRIVER*/
+  //     case substr($text,0,7) === '/upddrv':
+  //       $listparams = substr($text,7);
+  //       $params = explode('#',$listparams);
+  //       unset($params[0]);
+  //       $params = array_values($params);
   //
-  // switch($text)
-  // {//mulai switch
-  //   // case $text === '/calendar'://Udah bisa
-  //   //   $month_input = date("Y-m");
-  //   // 	$this->showCalendar($chatid, $month_input);
-  //   // 	break;
-  //   case $text==='/tes':
-  //     $this->pesanTes($chatid);
-  //     break;
-  //   /*BUAT UPDATE DRIVER*/
-  //   case substr($text,0,7) === '/upddrv':
-  //     $listparams = substr($text,7);
-  //     $params = explode('#',$listparams);
-  //     unset($params[0]);
-  //     $params = array_values($params);
-  //
-  //     if(count($params)==1){
-  //       $this->pesanBingung($chatid, $params);
-  //     }elseif (count($params)==2) {
-  //       $month_input = date("Y-m");
-  //       $this->showCalendar($chatid, $month_input, $params);
-  //     }elseif (count($params)==2) {
-  //       $this->showTanggal($chatid, $params);
-  //     }
-  //     break;
-  //   case substr($text,0,6) === 'change':
-  //     $month_input = substr($text,6,7);
-  //     // changeCalendar($chatid, $messageid, $month_input, $params)
-  //     $this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
-  //     break;
-  // }//end switch
+  //       if(count($params)==1){
+  //         $this->pesanBingung($chatid, $params);
+  //       }elseif (count($params)==2) {
+  //         $month_input = date("Y-m");
+  //         $this->showCalendar($chatid, $month_input, $params);
+  //       }elseif (count($params)==3) {
+  //         $this->showTanggal($chatid, $params);
+  //       }
+  //       break;
+  //     case substr($text,0,6) === 'change':
+  //       $month_input = substr($text,6,7);
+  //       // changeCalendar($chatid, $messageid, $month_input, $params)
+  //       $this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
+  //       break;
+  //   }//end switch
   // }//akhir fungsi respond
 
 	public function defaultMessage($chatid, $text, $username) //ini untuk menampilkan pesan default
@@ -155,7 +157,7 @@ class loop extends Controller
     $message="BINGUNG";
     // this will create keyboard buttons for users to touch instead of typing commands
     $inlineLayout = [[
-      Keyboard::inlineButton(['text' => 'Our site', 'callback_data' => '/upddrv#'.$params[0]."#".$message])
+      Keyboard::inlineButton(['text' => 'BINGUNG', 'callback_data' => '/upddrv#'.$params[0]."#".$message])
     ]];
 
     // create an instance of the replyKeyboardMarkup method
@@ -176,7 +178,7 @@ class loop extends Controller
       $message="TES";
   		// this will create keyboard buttons for users to touch instead of typing commands
   		$inlineLayout = [[
-  			Keyboard::inlineButton(['text' => 'Our site', 'callback_data' => '/upddrv#'.$message])
+  			Keyboard::inlineButton(['text' => 'TES', 'callback_data' => '/upddrv#'.$message])
   		]];
 
   		// create an instance of the replyKeyboardMarkup method
@@ -229,6 +231,7 @@ class loop extends Controller
 		// 		'show_alert' => false
 		// 	]);
 		// }//end if
+    // $idPesan=$messageId-1;
     $get="";
 		$message = "";
 		$message .= DateTime::createFromFormat('Y-m-d',$month_input."-01")->format("F Y")." \n";

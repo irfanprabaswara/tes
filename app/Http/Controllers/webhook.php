@@ -19,7 +19,7 @@ class webhook extends Controller
 {//awal kelas
 	public function setWebhook()
   	{
-		$response = Telegram::setWebhook(['url' => 'https://4c950630.ngrok.io/tes/public/webhook',]);
+		$response = Telegram::setWebhook(['url' => 'https://ead11233.ngrok.io/tes/public/webhook',]);
 		dd($response);
 	}
 
@@ -28,6 +28,43 @@ class webhook extends Controller
 		$response = Telegram::removeWebhook();
 		dd($response);
 	}
+
+	public function cekPesan($chatid, $params)
+	{//awal fungsi
+		$message = "*DETAIL PESANAN ANDA*";
+		$message .= "BAGIAN ANDA : ".$params[0];
+		$message .= "TANGGAL PENUGASAN : ".$params[1];
+		$message .= "LOKASI PENUGASAN : ".$params[2];
+		$message .= "SILAKAN KLIK BENAR UNTUK MELANJUTKAN PEMESANAN DRIVER";
+		$inlineLayout = [[
+			Keyboard::inlineButton(['text' => 'BENAR', 'callback_data' => '/upddrv#'.$params[0]."#".$params[1]."#".$params[2]."$params"]),
+			Keyboard::inlineButton(['text' => 'CANCEL', 'callback_data' => 'tidakJadi'])
+		]];
+
+		// create an instance of the replyKeyboardMarkup method
+		$keyboard = Telegram::replyKeyboardMarkup([
+			'resize_keyboard' => true,
+			'one_time_keyboard' => true,
+			'inline_keyboard' => $inlineLayout
+		]);
+
+		// Now send the message with they keyboard using 'reply_markup' parameter
+		$response = Telegram::sendMessage([
+			'chat_id' => $chatid,
+			'text' => $message,
+			'parse_mode' => 'markdown',
+			'reply_markup' => $keyboard
+		]);
+	}//akhir fungsi
+
+	public function tidakJadi($chatid)
+	{//awal fungsi
+		$message = "Silakan klik /pesandriver untuk melakukan pemesanan ulang";
+		$response=Telegram::sendMessage([
+			'chat_id'=>$chatid,
+			'text'=>$message
+		]);
+	}//akhir fungsi
 
 	function webhook()
 	{//awal func webhook
