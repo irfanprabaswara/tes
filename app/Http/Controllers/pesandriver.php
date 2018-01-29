@@ -437,9 +437,12 @@ class pesandriver extends Controller
 		$status="";
 		if($params[3]==="BENAR"){
 		$status="";
-		$result = DB::table('pemesanan')->insert(['pic'=>$params[1],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[0], 'lokasi'=>$params[2]]);
+		DB::table('pemesanan')->insert(['pic'=>$params[1],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[0], 'lokasi'=>$params[2]]);
 		$pesan="Hallo, ada pemesanan dari bagian ".$params[1]." atas nama ".$username." dengan tujuan ".$params[2]." pada tanggal ".$params[0].". Silakan click /updatetiket untuk memproses tiket yang ada";
 		$message = "*Pemesanan Berhasil*\n";
+		$result=
+
+
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
 			'parse_mode' => 'markdown',
@@ -451,14 +454,16 @@ class pesandriver extends Controller
 		  'parse_mode' => 'markdown',
 		  'text' => $pesan
 		]);
-	}else {
-		$message = "Silakan klik /pesandriver untuk melakukan pemesanan ulang";
-		$response=Telegram::sendMessage([
-			'chat_id'=>$chatid,
-			'text'=>$message
-		]);
-	}//akhir else
+		}else {
+			$message = "Silakan klik /pesandriver untuk melakukan pemesanan ulang";
+			$response=Telegram::sendMessage([
+				'chat_id'=>$chatid,
+				'text'=>$message
+			]);
+		}//akhir else
 	}//akhir fungsi
+
+	public function
 
 }//akhir kelas
 
