@@ -37,10 +37,9 @@ class pesandriver extends Controller
 				$this->defaultMessage($chatid, $text, $username);
 				break;
 			case $text === '/pesandriver'://udah bisa
-				$this->aturPic($chatid);
-				break;
-			case $text==='tidakJadi':
-				$this->tidakJadi($chatid);
+				$month_input = date("Y-m");
+				$this->tampilCalendar($chatid, $month_input);
+				// $this->aturPic($chatid);
 				break;
 
 			case substr($text,0,7) === '/psndrv':
@@ -50,9 +49,21 @@ class pesandriver extends Controller
 				$params = array_values($params);
 
 				if(count($params)==1){
-					$this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
-				}elseif(count($params)==2){
-					$this->lokasi($chatid, $params);
+					$apaya=substr($params[0],0,4);
+					if ($apaya === 'ubah') {
+						$month_input = substr($params[0],4,7);
+						$this->ubahCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
+					}
+					else {
+						$today = strftime('%F');
+						if ($params[0]<$today) {
+							$this->pesanError($chatid);
+						}else {
+							$this->aturPic($chatid);
+						}
+					// $this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
+				}}elseif(count($params)==2){
+						$this->lokasi($chatid, $params);
 				}elseif(count($params)==3){
 					$this->cekPesan($chatid, $params);
 				}elseif (count($params)==4) {
@@ -61,10 +72,10 @@ class pesandriver extends Controller
 				//$response_txt .= "Mengenal command dan berhasil merespon\n";
 				break;
 
-			case substr($text,0,4) === 'ubah':
-				$month_input = substr($text,4,7);
-				$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
-				break;
+			// case substr($text,0,4) === 'ubah':
+			// 	$month_input = substr($text,4,7);
+			// 	$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
+			// 	break;
 
 			default:
 				 $this->defaultMessage($chatid, $text, $username);
@@ -99,7 +110,7 @@ class pesandriver extends Controller
 					$this->defaultMessage($chatid, $text, $username);
 					break;
 				case $text === '/pesandriver'://udah bisa
-					$this->aturPic($chatid);
+					$this->tampilCalendar($chatid, $month_input, $callback_query_id);
 					break;
 
 				case substr($text,0,7) === '/psndrv':
@@ -109,14 +120,22 @@ class pesandriver extends Controller
 					$params = array_values($params);
 
 					if(count($params)==1){
-						$this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
+						$apaya=substr($params[0],0,4);
+						if ($apaya === 'ubah') {
+							$month_input = substr($params[0],4,7);
+							$this->ubahCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
+						}//endif
+						else {
+							$today = strftime('%F');
+							if ($params[0]<$today) {
+								$this->pesanError($chatid);
+							}else {
+								$this->aturPic($chatid, $params);
+							}//end else
+						// $this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
+					}//end else
 					}elseif(count($params)==2){
-						$today = strftime('%F');
-						if ($params[1]<$today) {
-							$this->pesanError($chatid);
-						}else {
 							$this->lokasi($chatid, $params);
-						}
 					}elseif(count($params)==3){
 						$this->cekPesan($chatid, $params);
 					}elseif (count($params)==4) {
@@ -125,10 +144,10 @@ class pesandriver extends Controller
 					//$response_txt .= "Mengenal command dan berhasil merespon\n";
 					break;
 
-				case substr($text,0,4) === 'ubah':
-					$month_input = substr($text,4,7);
-					$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
-					break;
+				// case substr($text,0,4) === 'ubah':
+				// 	$month_input = substr($text,4,7);
+				// 	$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
+				// 	break;
 
 				default:
 					 $this->defaultMessage($chatid, $text, $username);
@@ -155,8 +174,8 @@ class pesandriver extends Controller
 	{//awal fungsi
 		$setlist=['BENAR','CANCEL'];
 		$message = "*DETAIL PESANAN ANDA*\n\n";
-		$message .= "BAGIAN ANDA : ".$params[0]."\n";
-		$message .= "TANGGAL PENUGASAN : ".$params[1]."\n";
+		$message .= "BAGIAN ANDA : ".$params[1]."\n";
+		$message .= "TANGGAL PENUGASAN : ".$params[0]."\n";
 		$message .= "LOKASI PENUGASAN : ".$params[2]."\n\n";
 		$message .= "SILAKAN KLIK BENAR UNTUK MELANJUTKAN PEMESANAN DRIVER\n";
 
@@ -231,19 +250,19 @@ class pesandriver extends Controller
 		]);
 	}//akhir fungsi
 
-	public function tampilCalendar($chatid, $params, $month_input, $cbid)
+	public function tampilCalendar($chatid, $month_input)//udah bener
   {//awal fungsi
-		if($cbid != 0){
-			$responses = Telegram::answerCallbackQuery([
-				'callback_query_id' => $cbid,
-				'text' => '',
-				'show_alert' => false
-			]);
-		}//end if
+		// if($cbid != 0){
+		// 	$responses = Telegram::answerCallbackQuery([
+		// 		'callback_query_id' => $cbid,
+		// 		'text' => '',
+		// 		'show_alert' => false
+		// 	]);
+		// }//end if
 
 		$message = "*PILIH TANGGAL PENUGASAN*\n";
 		$message .= DateTime::createFromFormat('Y-m-d',$month_input."-01")->format("F Y")." \n";
-		$calendar = $this->buatCalendar($month_input, $params);
+		$calendar = $this->buatCalendar($month_input);
 
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
@@ -257,37 +276,66 @@ class pesandriver extends Controller
 		  'parse_mode' => 'markdown',
 		  'reply_markup' => $reply_markup
 		]);
-	}//akhir fungsi show calendar
+	}//akhir fungsi
 
-	public function ubahCalendar($chatid, $messageid, $month_input)
+	public function ubahCalendar($chatid, $messageid, $month_input)//masih error
   {//awal fungsi
-		if($cbid != 0){
-			$responses = Telegram::answerCallbackQuery([
-				'callback_query_id' => $cbid,
-				'text' => '',
-				'show_alert' => false
-			]);
-		}//end if
-
-		$message = "";
+		// if($cbid != 0){
+		// 	$responses = Telegram::answerCallbackQuery([
+		// 		'callback_query_id' => $cbid,
+		// 		'text' => '',
+		// 		'show_alert' => false
+		// 	]);
+		// }//end if
+		$message = "*PILIH TANGGAL PENUGASAN*\n";
 		$message .= DateTime::createFromFormat('Y-m-d',$month_input."-01")->format("F Y")." \n";
-		$calendar = $this->buatCalendar($month_input);
+
+    $calendar = [];
+		$keyboard = [];
+		$maxdate = date("t", strtotime($month_input."-01"));
+		$startday = date("w", strtotime($month_input."-01"));
+		$date = 1;
+		$row = 0;
+		$calendar = [];
+		while($date<=$maxdate){
+			$calendarperrow = [];
+			for($col=0;$col<7;$col++){
+				if((($col<$startday)&&($row==0))||(($date>$maxdate))){
+					$calendarperrow[] = Keyboard::inlineButton(['text' => '_', 'callback_data' => '_']);
+				}else{
+					$calendarperrow[] = Keyboard::inlineButton(['text' => substr("0".strval($date),-2), 'callback_data' => '/psndrv#'.$month_input."-".substr("0".strval($date),-2)]);
+					$date++;
+				}//end else
+			}//end for
+			$calendar[] = $calendarperrow;
+			$row++;
+		}//end while
+		$eek = trim($month_input)."-01";
+		$prev_date = DateTime::createFromFormat('Y-m-d',$eek)->sub(new DateInterval('P1M'))->format("Y-m");
+		$next_date = DateTime::createFromFormat('Y-m-d',$eek)->add(new DateInterval('P1M'))->format("Y-m");
+
+		$calendarperrow = [
+			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => '/psndrv#ubah'.$prev_date]),
+			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => '/psndrv#ubah'.$next_date])
+		];
+		$calendar[] = $calendarperrow;
 
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
 			'one_time_keyboard' => true,
-		    'inline_keyboard' => $calendar
+		  'inline_keyboard' => $calendar
 		]);
 
 		$response = Telegram::editMessageText([
 		  'chat_id' => $chatid,
+		  'parse_mode' => 'markdown',
 		  'message_id' =>$messageid,
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
 		]);
-	}//akhir fungsi change calendar
+	}//akhir fungsi ubah calendar
 
-	public function buatCalendar($month_input, $params)//fungsi buat bikin kalender
+  public function buatCalendar($month_input)//fungsi buat bikin kalender
   {//awal fungsi create calendar
 		$calendar = [];
 		$keyboard = [];
@@ -302,28 +350,27 @@ class pesandriver extends Controller
 				if((($col<$startday)&&($row==0))||(($date>$maxdate))){
 					$calendarperrow[] = Keyboard::inlineButton(['text' => '_', 'callback_data' => '_']);
 				}else{
-					$calendarperrow[] = Keyboard::inlineButton(['text' => substr("0".strval($date),-2), 'callback_data' => '/psndrv#'.$params[0]."#".$month_input."-".substr("0".strval($date),-2)]);
+					$calendarperrow[] = Keyboard::inlineButton(['text' => substr("0".strval($date),-2), 'callback_data' => '/psndrv#'.$month_input."-".substr("0".strval($date),-2)]);
 					$date++;
 				}//end else
 			}//end for
 			$calendar[] = $calendarperrow;
 			$row++;
 		}//end while
-
 		$eek = trim($month_input)."-01";
 		$prev_date = DateTime::createFromFormat('Y-m-d',$eek)->sub(new DateInterval('P1M'))->format("Y-m");
 		$next_date = DateTime::createFromFormat('Y-m-d',$eek)->add(new DateInterval('P1M'))->format("Y-m");
 
-		$calendarperrow = [
-			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => "ubah".$prev_date]),
-			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => "ubah".$next_date])
+    $calendarperrow = [
+			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => '/psndrvv#ubah'.$prev_date]),
+			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => '/psndrv#ubah'.$next_date])
 		];
 		$calendar[] = $calendarperrow;
 
 		return $calendar;
 	}//akhir fungsi create calendar
 
-	public function aturPic($chatid)
+	public function aturPic($chatid, $params)
 	{//awal fungsi pic
 		$message="";
 		$pic = [];
@@ -335,12 +382,12 @@ class pesandriver extends Controller
 		if ($result->count()>0) {
 			for ($i=0;$i<count($piclist);$i++){
 				if($col<$max_col){
-					$picperrow[] = Keyboard::inlineButton(['text' => $piclist[$i], 'callback_data' => '/psndrv#'.$piclist[$i]]);
+					$picperrow[] = Keyboard::inlineButton(['text' => $piclist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$piclist[$i]]);
 				}else{
 					$col=0;
 					$pic[] = $picperrow;
 					$picperrow = [];
-					$picperrow[] = Keyboard::inlineButton(['text' => $piclist[$i], 'callback_data' => '/psndrv#'.$piclist[$i]]);
+					$picperrow[] = Keyboard::inlineButton(['text' => $piclist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$piclist[$i]]);
 				}//end else
 				$col++;
 			}//end for
@@ -385,24 +432,13 @@ class pesandriver extends Controller
 		]);
 	}//ini akhir fungsi
 
-	// public function pesanUser($chatid)//ini buat nampilin nomor tiket ke user, tapi masih gagal
-	// {//awal fungsi pesan ke user
-	// 	$result = DB::table('pemesanan')->where(['pic'=>$params[0],'tanggal'=>$params[1], 'lokasi'=>$params[2]])->first();
-	// 	$message = "Pesanan anda dengan nomor tiket : ".$result->nomer_tiket." telah kami terima dan akan kami proses lebih lanjut."
-	// 	$response = Telegram::sendMessage([
-	// 	  'chat_id' => $chatid,//kalo mau ke supirnya tinggal diganti @idDriver
-	// 	  'parse_mode' => 'markdown',
-	// 	  'text' => $message
-	// 	]);
-	// }//akhir fungsi pesan ke user
-
 	public function simpanPesanan($chatid, $params, $username)
   {//awal fungsi
 		$status="";
 		if($params[3]==="BENAR"){
 		$status="";
-		$result = DB::table('pemesanan')->insert(['pic'=>$params[0],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[1], 'lokasi'=>$params[2]]);
-		$pesan="Hallo, ada pemesanan dari bagian ".$params[0]." atas nama ".$username." dengan tujuan ".$params[2]." pada tanggal ".$params[1].". Silakan click /updatetiket untuk memproses tiket yang ada";
+		$result = DB::table('pemesanan')->insert(['pic'=>$params[1],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[0], 'lokasi'=>$params[2]]);
+		$pesan="Hallo, ada pemesanan dari bagian ".$params[1]." atas nama ".$username." dengan tujuan ".$params[2]." pada tanggal ".$params[0].". Silakan click /updatetiket untuk memproses tiket yang ada";
 		$message = "*Pemesanan Berhasil*\n";
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
