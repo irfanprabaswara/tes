@@ -783,14 +783,15 @@ class FinalProject extends Controller
 
 		$max_col = 2;
 		$col =0;
+
 		for ($i=0;$i<count($setlist);$i++){
 			if($col<$max_col){
 				$setperrow[] = Keyboard::inlineButton(['text' => $setlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$params[2]."#".$setlist[$i]]);
 			}else{
 				$col=0;
 				$set[] = $setperrow;
-				$set = [];
-				$set[] = Keyboard::inlineButton(['text' => $setlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$params[2]."#".$setlist[$i]]);
+				$setperrow = [];
+				$setperrow[] = Keyboard::inlineButton(['text' => $setlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$params[2]."#".$setlist[$i]]);
 			}//end else
 			$col++;
 		}//end for
@@ -829,8 +830,8 @@ class FinalProject extends Controller
 			}else{
 				$col=0;
 				$location[] = $locationperrow;
-				$location = [];
-				$location[] = Keyboard::inlineButton(['text' => $locationlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$locationlist[$i]]);
+				$locationperrow = [];
+				$locationperrow[] = Keyboard::inlineButton(['text' => $locationlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$locationlist[$i]]);
 			}//end else
 			$col++;
 		}//end for
@@ -1024,9 +1025,12 @@ class FinalProject extends Controller
 		$status="";
 		if($params[3]==="BENAR"){
 		$status="";
-		$result = DB::table('pemesanan')->insert(['pic'=>$params[1],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[0], 'lokasi'=>$params[2]]);
+		DB::table('pemesanan')->insert(['pic'=>$params[1],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[0], 'lokasi'=>$params[2]]);
 		$pesan="Hallo, ada pemesanan dari bagian ".$params[1]." atas nama ".$username." dengan tujuan ".$params[2]." pada tanggal ".$params[0].". Silakan click /updatetiket untuk memproses tiket yang ada";
 		$message = "*Pemesanan Berhasil*\n";
+		$result=
+
+
 		$response = Telegram::sendMessage([
 			'chat_id' => $chatid,
 			'parse_mode' => 'markdown',
@@ -1038,14 +1042,16 @@ class FinalProject extends Controller
 		  'parse_mode' => 'markdown',
 		  'text' => $pesan
 		]);
-	}else {
-		$message = "Silakan klik /pesandriver untuk melakukan pemesanan ulang";
-		$response=Telegram::sendMessage([
-			'chat_id'=>$chatid,
-			'text'=>$message
-		]);
-	}//akhir else
+		}else {
+			$message = "Silakan klik /pesandriver untuk melakukan pemesanan ulang";
+			$response=Telegram::sendMessage([
+				'chat_id'=>$chatid,
+				'text'=>$message
+			]);
+		}//akhir else
 	}//akhir fungsi
+
+	// public function
 
 
 	/*

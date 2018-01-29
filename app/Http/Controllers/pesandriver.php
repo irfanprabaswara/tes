@@ -52,7 +52,7 @@ class pesandriver extends Controller
 					$apaya=substr($params[0],0,4);
 					if ($apaya === 'ubah') {
 						$month_input = substr($params[0],4,7);
-						$this->ubahCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
+						$this->ubahCalendar($chatid, $messageid, $month_input, $params);
 					}
 					else {
 						$today = strftime('%F');
@@ -123,7 +123,7 @@ class pesandriver extends Controller
 						$apaya=substr($params[0],0,4);
 						if ($apaya === 'ubah') {
 							$month_input = substr($params[0],4,7);
-							$this->ubahCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
+							$this->ubahCalendar($chatid, $messageid, $month_input, $params);
 						}//endif
 						else {
 							$today = strftime('%F');
@@ -181,14 +181,15 @@ class pesandriver extends Controller
 
 		$max_col = 2;
 		$col =0;
+
 		for ($i=0;$i<count($setlist);$i++){
 			if($col<$max_col){
 				$setperrow[] = Keyboard::inlineButton(['text' => $setlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$params[2]."#".$setlist[$i]]);
 			}else{
 				$col=0;
 				$set[] = $setperrow;
-				$set = [];
-				$set[] = Keyboard::inlineButton(['text' => $setlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$params[2]."#".$setlist[$i]]);
+				$setperrow = [];
+				$setperrow[] = Keyboard::inlineButton(['text' => $setlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$params[2]."#".$setlist[$i]]);
 			}//end else
 			$col++;
 		}//end for
@@ -227,8 +228,8 @@ class pesandriver extends Controller
 			}else{
 				$col=0;
 				$location[] = $locationperrow;
-				$location = [];
-				$location[] = Keyboard::inlineButton(['text' => $locationlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$locationlist[$i]]);
+				$locationperrow = [];
+				$locationperrow[] = Keyboard::inlineButton(['text' => $locationlist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$params[1]."#".$locationlist[$i]]);
 			}//end else
 			$col++;
 		}//end for
@@ -463,7 +464,7 @@ class pesandriver extends Controller
 		}//akhir else
 	}//akhir fungsi
 
-	public function
+	// public function
 
 }//akhir kelas
 
