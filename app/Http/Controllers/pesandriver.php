@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use Exception;
 use DateTime;
 use DateInterval;
+use App\Pemesanan;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -438,10 +439,17 @@ class pesandriver extends Controller
 		$status="";
 		if($params[3]==="BENAR"){
 		$status="";
-		DB::table('pemesanan')->insert(['pic'=>$params[1],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[0], 'lokasi'=>$params[2]]);
+        $newpemesanan = Pemesanan::create([
+            'chatid' => $chatid,
+            'username' => $username,
+            'pic' => $params[1],
+            'tanggal' => $params[0] ,
+            'lokasi' => $params[2]
+        ]);
+		//DB::table('pemesanan')->insert(['pic'=>$params[1],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[0], 'lokasi'=>$params[2]]);
 		$pesan="Hallo, ada pemesanan dari bagian ".$params[1]." atas nama ".$username." dengan tujuan ".$params[2]." pada tanggal ".$params[0].". Silakan click /updatetiket untuk memproses tiket yang ada";
-		$message = "*Pemesanan Berhasil*\n";
-		$result=
+		$message = "*Pemesanan Berhasil dengan nomor tiket '.$newpemesanan->no_tiket.*\n";
+		//$result=
 
 
 		$response = Telegram::sendMessage([
