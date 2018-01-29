@@ -111,7 +111,12 @@ class pesandriver extends Controller
 					if(count($params)==1){
 						$this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
 					}elseif(count($params)==2){
-						$this->lokasi($chatid, $params);
+						$today = strftime('%F');
+						if ($params[1]<$today) {
+							$this->pesanError($chatid);
+						}else {
+							$this->lokasi($chatid, $params);
+						}
 					}elseif(count($params)==3){
 						$this->cekPesan($chatid, $params);
 					}elseif (count($params)==4) {
@@ -136,6 +141,15 @@ class pesandriver extends Controller
 			]);
 		}//end catch
 	}//akhir fungsi webhook
+
+	public function pesanError($chatid)
+	{
+		$message="Tanggal penugasan sudah kadaluarsa. \nSilakan pilih kembali tanggal keberangkatan diatas atau klik /pesandriver untuk pemesanan ulang.";
+		$response= Telegram::sendMessage([
+			'chat_id' => $chatid,
+			'text' => $message
+		]);
+	}
 
 	public function cekPesan($chatid, $params)
 	{//awal fungsi

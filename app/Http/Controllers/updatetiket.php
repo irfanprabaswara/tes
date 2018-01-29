@@ -47,7 +47,12 @@ class updatetiket extends Controller
 
         if(count($params)==1){
           $this->showDataTiket($chatid, $params);
-          $this->setDriver($chatid, $params);
+        }elseif (count($params)==2) {
+          if ($params[1]==='APPROVE') {
+            $this->setDriver($chatid, $params);
+          }else {
+            $this->hapusTiket($chatid, $params);
+          }
         }else{
           $this->updateLog($chatid, $params);
         }
@@ -101,16 +106,15 @@ class updatetiket extends Controller
 
           if(count($params)==1){
             $this->showDataTiket($chatid, $params);
-            $this->setDriver($chatid, $params);
+          }elseif (count($params)==2) {
+            if ($params[1]==="APPROVE") {
+              $this->setDriver($chatid, $params);
+            }else {
+              $this->hapusTiket($chatid, $params);
+            }
           }else{
             $this->updateLog($chatid, $params);
           }
-        //   //$response_txt .= "Mengenal command dan berhasil merespon\n";
-        //   break;
-        //
-        // case substr($text,0,6) === 'change':
-        //   $month_input = substr($text,6,7);
-        //   $this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
         break;
 
         default:
@@ -125,10 +129,22 @@ class updatetiket extends Controller
     }//end catch
   }//akhir fungsi webhook
 
+  public function hapusTiket($chatid, $params)
+  {
+    $statusTiket="SELESAI";
+    $nomor=$params[0];
+    DB::table('pemesanan')->where(['no_tiket'=>$nomor])->update(['status'=>$statusTiket]);
+    $message="Tiket dengan nomor tiket ".$nomor. " telah berhasil dihapus.";
+    $response = Telegram::sendMessage([//buat ngirim ke admin
+			'chat_id' => $chatid,
+			'text' => $message
+		]);
+  }
+
   public function updateLog($chatid, $params)
   {//awal fungsi updateLog
 		$nomor=$params[0];
-    $idDriver=$params[1];
+    $idDriver=$params[2];
     // $nomor='13';
     // $idDriver='549021135';
 		$statusDriver="Terpakai";
@@ -164,19 +180,19 @@ class updatetiket extends Controller
 		$keyboard = [];
 		$message="";
     $nomor=$params[0];
-		$result = DB::table('driver')->where(['status'=>""])->get();
+		$result = DB::table('driver')->where(['status'=>"Standby"])->get();
 		$message = "*PILIH DRIVER YANG AKAN DI-UPDATE* \n\n";
 		$max_col = 3;
 		$col =0;
 		if ($result->count()>0){
 			for ($i=0;$i<$result->count();$i++){
 				if($col<$max_col){
-					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$result[$i]->id]);
+					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$params[1]."#".$result[$i]->id]);
 				}else{
 					$col=0;
 					$driver[] = $driverperrow;
 					$driverperrow = [];
-					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$result[$i]->id]);
+					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$params[1]."#".$result[$i]->id]);
 				}//end else
 				$col++;
 			}//end for
@@ -269,11 +285,25 @@ class updatetiket extends Controller
     $message .= "TUJUAN PENUGASAN : ".$result->lokasi."\n";
     // $driver[] = Keyboard::inlineButton(['text' => "URUS", 'callback_data' => '/updtkt#'.$params[0]]);
 
-		$response = Telegram::sendMessage([
-			'chat_id' => $chatid,
-			'parse_mode' => 'markdown',
-			'text' => $message
-		]);
+    $inlineLayout = [[
+      Keyboard::inlineButton(['text' => 'APPROVE', 'callback_data' => '/updtkt#'.$params[0]."#APPROVE"]),
+      Keyboard::inlineButton(['text' => 'HAPUS TIKET', 'callback_data' => '/updtkt#'.$params[0]."#HAPUS TIKET"])
+    ]];
+
+    $reply_markup = Telegram::replyKeyboardMarkup([
+      'resize_keyboard' => true,
+      'one_time_keyboard' => true,
+      'inline_keyboard' => $inlineLayout
+    ]);
+
+    $response = Telegram::sendMessage([
+      'chat_id' => $chatid,
+      'parse_mode' => 'markdown',
+      'text' => $message,
+      'reply_markup' => $reply_markup
+    ]);
+
+
   }//akhir fungsi show tiket
 
   public function defaultMessage($chatid, $text, $username) //ini untuk menampilkan pesan default

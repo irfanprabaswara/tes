@@ -157,7 +157,12 @@ class updatedriver extends Controller
 						$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
 					}elseif(count($params)==4){
 						// $callback_query_id=0;
-						$this->setLocation($chatid, $params);
+            $today = strftime('%F');
+						if ($params[3]<$today) {
+							$this->errorMessage($chatid);
+            }else {
+              $this->setLocation($chatid, $params);
+            }
 					}elseif(count($params)==5){
 						// $callback_query_id=0;
 						$this->saveTheUpdates($chatid, $params, $username);
@@ -185,6 +190,14 @@ class updatedriver extends Controller
 	/*
 		Berikut merupakan program untuk update driver
 	*/
+  public function errorMessage($chatid)
+  {
+    $message="Silakan pilih kembali tanggal penugasan diatas.";
+    $response=Telegram::sendMessage([
+      'chat_id'=>$chatid,
+      'text'=>$message
+    ]);
+  }
 	public function showWelcomeMessage($chatid)
   {//awal fungsi
 		$message = "Sugeng rawuh. Bot Kanwil Yogya siap membantu seadanya";

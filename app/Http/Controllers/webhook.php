@@ -19,7 +19,7 @@ class webhook extends Controller
 {//awal kelas
 	public function setWebhook()
   	{
-		$response = Telegram::setWebhook(['url' => 'https://ead11233.ngrok.io/tes/public/webhook',]);
+		$response = Telegram::setWebhook(['url' => 'https://ed00e77c.ngrok.io/tes/public/webhook',]);
 		dd($response);
 	}
 
