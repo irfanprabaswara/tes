@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 //PERLU DIPERHATIKAN
 
-class loop extends Controller
+class calendar extends Controller
 {//awal kelas
 
   public function webhook()
@@ -52,39 +52,46 @@ class loop extends Controller
 			}//end else
 
       switch($text)
-  		{//mulai switch
-  			// case $text === '/calendar'://Udah bisa
+      {//mulai switch
+        // case $text === '/calendar'://Udah bisa
         //   $month_input = date("Y-m");
-  			// 	$this->showCalendar($chatid, $month_input);
-  			// 	break;
+        // 	$this->showCalendar($chatid, $month_input);
+        // 	break;
         case $text==='/tes':
           $this->pesanTes($chatid);
           break;
-  			/*BUAT UPDATE DRIVER*/
-  			case substr($text,0,7) === '/upddrv':
-  				$listparams = substr($text,7);
-  				$params = explode('#',$listparams);
-  				unset($params[0]);
-  				$params = array_values($params);
+        /*BUAT UPDATE DRIVER*/
+        case substr($text,0,7) === '/upddrv':
+          $listparams = substr($text,7);
+          $params = explode('#',$listparams);
+          unset($params[0]);
+          $params = array_values($params);
 
-  				if(count($params)==1){
+          if(count($params)==1){
             $this->pesanBingung($chatid, $params);
-  				}elseif (count($params)==2) {
+          }elseif (count($params)==2) {
             $month_input = date("Y-m");
-  					$this->showCalendar($chatid, $month_input, $params);
+            $this->showCalendar($chatid, $month_input, $params);
           }elseif (count($params)==3) {
-            $this->showTanggal($chatid, $params);
+            $apaya=substr($params[2],0,6);
+            if ($apaya === "change") {
+              $month_input = substr($params[2],6,7);
+              $this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
+            }
+            else {
+              $this->showTanggal($chatid, $params);
+            }
           }
-  				break;
-        case substr($text,0,6) === 'change':
-    			$month_input = substr($text,6,7);
-          // changeCalendar($chatid, $messageid, $month_input, $params)
-    			$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
-    			break;
+          break;
+        // case substr($text,0,6) === 'change':
+        // 	$month_input = substr($text,6,7);
+        //   // changeCalendar($chatid, $messageid, $month_input, $params)
+        // 	$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
+        // 	break;
         default :
           $this->defaultMessage($chatid, $text, $username);
           break;
-  		}//end switch
+      }//end switch
 
 		}catch (\Exception $e) {
 			Telegram::sendMessage([
@@ -94,48 +101,58 @@ class loop extends Controller
 		}//end catch
 	}//akhir fungsi webhook
 
-  // public function respond()
-  // {
-  // $telegram = new Api (env('TELEGRAM_BOT_TOKEN'));
-  // $request = Telegram::getUpdates();
-  // $request = collect(end($request));
-  //
-  //   $chatid = $request['message']['chat']['id'];
-  //   $text = $request['message']['text'];
-  //   $username=$request['message']['chat']['username'];
-  //
-  //   switch($text)
-  //   {//mulai switch
-  //     // case $text === '/calendar'://Udah bisa
-  //     //   $month_input = date("Y-m");
-  //     // 	$this->showCalendar($chatid, $month_input);
-  //     // 	break;
-  //     case $text==='/tes':
-  //       $this->pesanTes($chatid);
-  //       break;
-  //     /*BUAT UPDATE DRIVER*/
-  //     case substr($text,0,7) === '/upddrv':
-  //       $listparams = substr($text,7);
-  //       $params = explode('#',$listparams);
-  //       unset($params[0]);
-  //       $params = array_values($params);
-  //
-  //       if(count($params)==1){
-  //         $this->pesanBingung($chatid, $params);
-  //       }elseif (count($params)==2) {
-  //         $month_input = date("Y-m");
-  //         $this->showCalendar($chatid, $month_input, $params);
-  //       }elseif (count($params)==3) {
-  //         $this->showTanggal($chatid, $params);
-  //       }
-  //       break;
-  //     case substr($text,0,6) === 'change':
-  //       $month_input = substr($text,6,7);
-  //       // changeCalendar($chatid, $messageid, $month_input, $params)
-  //       $this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
-  //       break;
-  //   }//end switch
-  // }//akhir fungsi respond
+  public function respond()
+  {
+  $telegram = new Api (env('TELEGRAM_BOT_TOKEN'));
+  $request = Telegram::getUpdates();
+  $request = collect(end($request));
+
+    $chatid = $request['message']['chat']['id'];
+    $text = $request['message']['text'];
+    $username=$request['message']['chat']['username'];
+
+    switch($text)
+    {//mulai switch
+      // case $text === '/calendar'://Udah bisa
+      //   $month_input = date("Y-m");
+      // 	$this->showCalendar($chatid, $month_input);
+      // 	break;
+      case $text==='/tes':
+        $this->pesanTes($chatid);
+        break;
+      /*BUAT UPDATE DRIVER*/
+      case substr($text,0,7) === '/upddrv':
+        $listparams = substr($text,7);
+        $params = explode('#',$listparams);
+        unset($params[0]);
+        $params = array_values($params);
+
+        if(count($params)==1){
+          $this->pesanBingung($chatid, $params);
+        }elseif (count($params)==2) {
+          $month_input = date("Y-m");
+          $this->showCalendar($chatid, $month_input, $params);
+        }elseif (count($params)==3) {
+          $apaya=substr($params[2],0,6);
+          if ($apaya === "change") {
+            $month_input = substr($params[2],6,7);
+            $this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
+          }
+          else {
+            $this->showTanggal($chatid, $params);
+          }
+        }
+        break;
+      // case substr($text,0,6) === 'change':
+      // 	$month_input = substr($text,6,7);
+      //   // changeCalendar($chatid, $messageid, $month_input, $params)
+      // 	$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
+      // 	break;
+      default :
+        $this->defaultMessage($chatid, $text, $username);
+        break;
+    }//end switch
+  }//akhir fungsi respond
 
 	public function defaultMessage($chatid, $text, $username) //ini untuk menampilkan pesan default
   {
@@ -231,11 +248,47 @@ class loop extends Controller
 		// 		'show_alert' => false
 		// 	]);
 		// }//end if
-    // $idPesan=$messageId-1;
+    // $month_input = substr($params[2],6,7);
+    $get1=$params[0];
+    $get2=$params[1];
 		$message = "*PILIH TANGGAL PENUGASAN*\n";
 		$message .= DateTime::createFromFormat('Y-m-d',$month_input."-01")->format("F Y")." \n";
-		$calendar = $this->createCalendar($month_input, $params);
+		// $calendar = $this->createCalendar($month_input, $params);
     // $calendar = $this->showCalendar($chatid, $month_input, $params);
+
+
+    $calendar = [];
+		$keyboard = [];
+		$maxdate = date("t", strtotime($month_input."-01"));
+		$startday = date("w", strtotime($month_input."-01"));
+		$date = 1;
+		$row = 0;
+		$calendar = [];
+		while($date<=$maxdate){
+			$calendarperrow = [];
+			for($col=0;$col<7;$col++){
+				if((($col<$startday)&&($row==0))||(($date>$maxdate))){
+					$calendarperrow[] = Keyboard::inlineButton(['text' => '_', 'callback_data' => '_']);
+				}else{
+					$calendarperrow[] = Keyboard::inlineButton(['text' => substr("0".strval($date),-2), 'callback_data' => '/upddrv#'.$get1."#".$get2."#".$month_input."-".substr("0".strval($date),-2)]);
+					$date++;
+				}//end else
+			}//end for
+			$calendar[] = $calendarperrow;
+			$row++;
+		}//end while
+		$eek = trim($month_input)."-01";
+		$prev_date = DateTime::createFromFormat('Y-m-d',$eek)->sub(new DateInterval('P1M'))->format("Y-m");
+		$next_date = DateTime::createFromFormat('Y-m-d',$eek)->add(new DateInterval('P1M'))->format("Y-m");
+
+		$calendarperrow = [
+			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => '/upddrv#'.$params[0]."#".$params[1]."#change".$prev_date]),
+			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => '/upddrv#'.$params[0]."#".$params[1]."#change".$next_date])
+		];
+		$calendar[] = $calendarperrow;
+
+		return $calendar;
+
 
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
@@ -245,8 +298,8 @@ class loop extends Controller
 
 		$response = Telegram::editMessageText([
 		  'chat_id' => $chatid,
+		  'parse_mode' => 'markdown',
 		  'message_id' =>$messageid,
-      'parse_mode' => 'markdown',
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
 		]);
@@ -278,14 +331,13 @@ class loop extends Controller
 		$prev_date = DateTime::createFromFormat('Y-m-d',$eek)->sub(new DateInterval('P1M'))->format("Y-m");
 		$next_date = DateTime::createFromFormat('Y-m-d',$eek)->add(new DateInterval('P1M'))->format("Y-m");
 
-		$calendarperrow = [
-			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => "change".$prev_date]),
-			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => "change".$next_date])
+    $calendarperrow = [
+			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => '/upddrv#'.$params[0]."#".$params[1]."#change".$prev_date]),
+			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => '/upddrv#'.$params[0]."#".$params[1]."#change".$next_date])
 		];
 		$calendar[] = $calendarperrow;
 
 		return $calendar;
-
 	}//akhir fungsi create calendar
 
   public function showTanggal($chatid, $params)

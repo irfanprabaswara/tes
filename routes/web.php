@@ -58,12 +58,15 @@ Route::get('/unset', 'webhook@unsetWebhook');//buat unset webhook
 // Route::post('webhook', 'confirmSelesai@webhook');//buat confirm kalo udah selesai bertugas
 // Route::post('webhook', 'FinalProject@webhook');//FINAL
 
-Route::post('webhook', 'loop@webhook');//tes kalender
+// Route::post('webhook', 'loop@webhook');//tes kalender
 // Route::post('webhook', 'coba@webhook');//updateDriver
 // Route::post('webhook', 'try@webhook');pesanDriver
+Route::post('webhook', 'loop@webhook');
+Route::post('webhook','calendar@webhook');
 
 // Route::get('respond', 'tes@respond');
-Route::get('respond', 'loop@respond');//buat nge-debug kalender
+// Route::get('respond', 'loop@respond');//buat nge-debug kalender
+Route::get('respond', 'calendar@respond');//buat nge-debug kalender
 
 // Route::get('respond', 'updatetiket@respond');//buat nge-debug update tiket
 // Route::get('respond', 'confirmSelesai@respond');//buat nge-debug selesai
