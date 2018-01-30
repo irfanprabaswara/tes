@@ -111,7 +111,17 @@ class pesandriver extends Controller
 					$this->defaultMessage($chatid, $text, $username);
 					break;
 				case $text === '/pesandriver'://udah bisa
-					$this->tampilCalendar($chatid, $month_input, $callback_query_id);
+					$cekDriver=DB::table('driver')->where(['status'=>'Standby'])->get();
+					if ($cekDriver->count()>0) {
+						$this->tampilCalendar($chatid, $month_input, $callback_query_id);
+					}else {
+						$message="*MAAF, DRIVER PENUH*";
+						$response=Telegram::sendMessage([
+							'chat_id'=>$chatid,
+							'text'=>$message,
+							'parse_mode'=>'markdown'
+						]);
+					}
 					break;
 
 				case substr($text,0,7) === '/psndrv':

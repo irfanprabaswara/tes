@@ -48,7 +48,9 @@ class updatetiket extends Controller
         if(count($params)==1){
           $this->showDataTiket($chatid, $params);
         }elseif (count($params)==2) {
-          if ($params[1]==='APPROVE') {
+          $get=DB::table('pemesanan')->where(['no_tiket'=>$params[0]])->first();
+          $cekStatus=$get->status;
+          if (($params[1]==='APPROVE')&&($cekStatus=null)) {
             $this->setDriver($chatid, $params);
           }else {
             $this->hapusTiket($chatid, $params);
@@ -108,7 +110,12 @@ class updatetiket extends Controller
             $this->showDataTiket($chatid, $params);
           }elseif (count($params)==2) {
             if ($params[1]==="APPROVE") {
+              $result = DB::table('driver')->where(['status'=>'Standby'])->get();
+              if ($result->count()>0){
               $this->setDriver($chatid, $params);
+            }else {
+              $this->pesanDriverHabis($chatid);
+            }
             }else {
               $this->hapusTiket($chatid, $params);
             }
@@ -129,6 +136,14 @@ class updatetiket extends Controller
     }//end catch
   }//akhir fungsi webhook
 
+  public function pesanDriverHabis($chatid)
+  {
+    $message="Driver penuh";
+    $response=Telegram::sendMessage([
+      'chat_id'=>$chatid,
+      'text'=>$message
+    ]);
+  }
   public function hapusTiket($chatid, $params)
   {
     $statusTiket="SELESAI";

@@ -72,6 +72,7 @@ class FinalProject extends Controller
 						$this->updateStatusDriver($chatid, $params);
 					}
 				break;
+
 			//BUAT UPDATE TIKET
 			case substr($text,0,7) === '/updtkt':
 				$listparams = substr($text,7);
@@ -83,7 +84,12 @@ class FinalProject extends Controller
 					$this->showDataTiket($chatid, $params);
 				}elseif (count($params)==2) {
 					if ($params[1]==="APPROVE") {
-						$this->setDriver($chatid, $params);
+						$result = DB::table('driver')->where(['status'=>'Standby'])->get();
+						if ($result->count()>0){
+							$this->setDriver($chatid, $params);
+						}else {
+							$this->pesanDriverHabis($chatid);
+						}
 					}else {
 						$this->hapusTiket($chatid, $params);
 					}
@@ -112,7 +118,6 @@ class FinalProject extends Controller
 						}else {
 							$this->aturPic($chatid, $params);
 						}//end else
-					// $this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
 				}//end else
 				}elseif(count($params)==2){
 						$this->lokasi($chatid, $params);
@@ -240,23 +245,28 @@ class FinalProject extends Controller
 
 				//BUAT UPDATE TIKET
 				case substr($text,0,7) === '/updtkt':
-					$listparams = substr($text,7);
-					$params = explode('#',$listparams);
-					unset($params[0]);
-					$params = array_values($params);
+          $listparams = substr($text,7);
+          $params = explode('#',$listparams);
+          unset($params[0]);
+          $params = array_values($params);
 
-					if(count($params)==1){
+          if(count($params)==1){
             $this->showDataTiket($chatid, $params);
           }elseif (count($params)==2) {
             if ($params[1]==="APPROVE") {
-              $this->setDriver($chatid, $params);
+              $result = DB::table('driver')->where(['status'=>'Standby'])->get();
+              if ($result->count()>0){
+              	$this->setDriver($chatid, $params);
+            	}else {
+              	$this->pesanDriverHabis($chatid);
+            	}
             }else {
               $this->hapusTiket($chatid, $params);
             }
           }else{
             $this->updateLog($chatid, $params);
           }
-				break;
+        break;
 
 				//BUAT PESAN DRIVER
 				case substr($text,0,7) === '/psndrv':
@@ -509,12 +519,6 @@ class FinalProject extends Controller
 		  'parse_mode' => 'markdown',
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
-		]);
-
-		$response = Telegram::sendMessage([
-			'chat_id' => 437329516,
-			// 'parse_mode' => 'markdown',
-			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
 		]);
 	}//akhir fungsi
 
@@ -1056,6 +1060,16 @@ class FinalProject extends Controller
 		KALO ERROR HARAP BERSABAR
 		HAHAHAHAA
 	*/
+	public function pesanDriverHabis($chatid)
+  {
+    $message="*DRIVER PENUH*";
+    $response=Telegram::sendMessage([
+      'chat_id'=>$chatid,
+			'parse_mode'=>'markdown',
+      'text'=>$message
+    ]);
+  }
+
 	public function hapusTiket($chatid, $params)
 	{
 		$statusTiket="SELESAI";
@@ -1146,11 +1160,10 @@ class FinalProject extends Controller
   		]);
     }//endif
     else {
-      $message = "*Tiket sudah tidak berlaku*";
+      $message = "Tiket sudah tidak berlaku. Silakan klik /updatetiket untuk menindak lanjuti tiket lain";
 
       $response = Telegram::sendMessage([
         'chat_id'=>$chatid,
-        'parse_mode'=>'markdown',
         'text'=>$message
       ]);
     }
