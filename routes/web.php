@@ -73,9 +73,9 @@ Route::post('webhook', 'FinalProject@webhook');//FINAL
 // Route::get('respond', 'updatetiket@respond');//buat nge-debug update tiket
 // Route::get('respond', 'confirmSelesai@respond');//buat nge-debug selesai
 // Route::get('respond', 'coba@respond');//buat nge-debug calender
-// Route::get('respond', 'FinalProject@respond');//buat nge-debug FINAL
+Route::get('respond', 'FinalProject@respond');//buat nge-debug FINAL
 // Route::get('respond', 'updatedriver@respond');//buat nge-debug updateDriver
-Route::get('respond', 'pesandriver@respond');//buat nge-debug pesanDriver
+// Route::get('respond', 'pesandriver@respond');//buat nge-debug pesanDriver
 // $updates = Telegram::getWebhookUpdates();
 // Route::post('/<token>/webhook', function () {
 //     $updates = Telegram::getWebhookUpdates();

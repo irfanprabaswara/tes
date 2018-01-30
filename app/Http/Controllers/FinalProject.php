@@ -20,174 +20,166 @@ use Illuminate\Support\Facades\Log;
 class FinalProject extends Controller
 {//awal kelas
 
-	// public function respond()
-  // {
-  // $telegram = new Api (env('TELEGRAM_BOT_TOKEN'));
-  // $request = Telegram::getUpdates();
-  // $request = collect(end($request));
-  //
-  //   $chatid = $request['message']['chat']['id'];
-  //   $text = $request['message']['text'];
-  //   $username=$request['message']['chat']['username'];
-  //
-	// 	switch($text)
-	// 	{//mulai switch
-	// 		case $text === '/start'://udah bisa
-	// 			$this->showWelcomeMessage($chatid);
-	// 			break;
-	// 		case $text==='/menu'://udah bisa
-	// 			$this->showMenu($chatid);
-	// 			break;
-	// 		case $text === 'website'://udah bisa
-	// 			 $this->showWebsite($chatid, $callback_query_id);
-	// 				 break;
-	// 		case $text === 'contact'://udah bisa
-	// 			 $this->showContact($chatid, $callback_query_id);
-	// 			 break;
-	// 		case $text === '/driver'://udah bisa
-	// 			$this->showDriverList($chatid, $username, $text);
-	// 			break;
-	// 		case $text === '/updatedriver'://Udah bisa
-	// 			$this->showUpdateDriver($chatid, $username, $text);
-	// 			break;
-	// 		case $text === '/pesandriver'://udah bisa
-	// 			$this->tampilCalendar($chatid, $month_input, $callback_query_id);
-	// 			break;
-	// 		case $text === '/updatetiket'://udah bisa
-	// 			$this->updateTiket($chatid, $text, $username);
-	// 			break;
-	// 		case $text === '/selesai'://BUAT CONFIRM DRIVER SELESAI BERTUGAS
-	// 			 $this->konfirmasi($chatid, $username, $text);
-	// 			 break;
-	// 		//BUAT CONFIRM DRIVER SELESAI BERTUGAS
-	// 		case substr($text,0,8) === '/confirm':
-	// 			 $listparams = substr($text,8);
-	// 			 $params = explode('#',$listparams);
-	// 			 unset($params[0]);
-	// 			 $params = array_values($params);
-  //
-	// 				if(count($params)==1){
-	// 					$this->updateStatusDriver($chatid, $params);
-	// 				}
-	// 			break;
-	// 		//BUAT UPDATE TIKET
-	// 		case substr($text,0,7) === '/updtkt':
-	// 			$listparams = substr($text,7);
-	// 			$params = explode('#',$listparams);
-	// 			unset($params[0]);
-	// 			$params = array_values($params);
-  //
-	// 			if(count($params)==1){
-	// 				$this->showDataTiket($chatid, $params);
-	// 			}elseif (count($params)==2) {
-	// 				if ($params[1]==="APPROVE") {
-	// 					$this->setDriver($chatid, $params);
-	// 				}else {
-	// 					$this->hapusTiket($chatid, $params);
-	// 				}
-	// 			}else{
-	// 				$this->updateLog($chatid, $params);
-	// 			}
-	// 		break;
-  //
-	// 		//BUAT PESAN DRIVER
-	// 		case substr($text,0,7) === '/psndrv':
-	// 			$listparams = substr($text,7);
-	// 			$params = explode('#',$listparams);
-	// 			unset($params[0]);
-	// 			$params = array_values($params);
-  //
-	// 			if(count($params)==1){
-	// 				$apaya=substr($params[0],0,4);
-	// 				if ($apaya === 'ubah') {
-	// 					$month_input = substr($params[0],4,7);
-	// 					$this->ubahCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
-	// 				}//endif
-	// 				else {
-	// 					$today = strftime('%F');
-	// 					if ($params[0]<$today) {
-	// 						$this->pesanError($chatid);
-	// 					}else {
-	// 						$this->aturPic($chatid, $params);
-	// 					}//end else
-	// 				// $this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
-	// 			}//end else
-	// 			}elseif(count($params)==2){
-	// 					$this->lokasi($chatid, $params);
-	// 			}elseif(count($params)==3){
-	// 				$this->cekPesan($chatid, $params);
-	// 			}elseif (count($params)==4) {
-	// 				$this->simpanPesanan($chatid, $params, $username);
-	// 			}
-	// 			//$response_txt .= "Mengenal command dan berhasil merespon\n";
-	// 			break;
-  //
-	// 		//BUAT UPDATE DRIVER
-	// 		case substr($text,0,7) === '/upddrv':
-	// 			$listparams = substr($text,7);
-	// 			$params = explode('#',$listparams);
-	// 			unset($params[0]);
-	// 			$params = array_values($params);
-  //
-	// 			if(count($params)==1){
-	// 				$this->confirmDriver($chatid, $params);
-	// 			}elseif(count($params)==2){
-	// 				if($params[1]=="set"){
-	// 					$this->setPic($chatid, $params);
-	// 				}else{
-	// 					$this->releaseDriver($chatid, $params);
-	// 				}
-	// 			}elseif(count($params)==3){
-	// 				// $callback_query_id=0;
-	// 				$month_input = date("Y-m");
-	// 				$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
-	// 			}elseif(count($params)==4){
-	// 				// $callback_query_id=0;
-	// 				$today = strftime('%F');
-	// 				if ($params[3]<$today) {
-	// 					$this->errorMessage($chatid);
-	// 				}else {
-	// 					$this->setLocation($chatid, $params);
-	// 				}
-	// 			}elseif(count($params)==5){
-	// 				// $callback_query_id=0;
-	// 				$this->saveTheUpdates($chatid, $params, $username);
-	// 			}//end elseif
-  //
-	// 			//$response_txt .= "Mengenal command dan berhasil merespon\n";
-	// 			break;
-  //
-	// 		case substr($text,0,6) === 'change':
-	// 			$month_input = substr($text,6,7);
-	// 			$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
-	// 			break;
-	// 		case substr($text,0,4) === 'ubah':
-	// 			$month_input = substr($text,4,7);
-	// 			$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
-	// 			break;
-	// 		default:
-	// 			 $this->defaultMessage($chatid, $text, $username);
-	// 			 break;
-	// 	}//end switch
-  //
-  // }//akhir fungsi respond
+	public function respond()
+  {
+  $telegram = new Api (env('TELEGRAM_BOT_TOKEN'));
+  $request = Telegram::getUpdates();
+  $request = collect(end($request));
+
+    $chatid = $request['message']['chat']['id'];
+    $text = $request['message']['text'];
+    $username=$request['message']['chat']['username'];
+
+		switch($text)
+		{//mulai switch
+			case $text === '/start'://udah bisa
+				$this->showWelcomeMessage($chatid);
+				break;
+			case $text==='/menu'://udah bisa
+				$this->showMenu($chatid);
+				break;
+			case $text === 'website'://udah bisa
+				 $this->showWebsite($chatid, $callback_query_id);
+					 break;
+			case $text === 'contact'://udah bisa
+				 $this->showContact($chatid, $callback_query_id);
+				 break;
+			case $text === '/driver'://udah bisa
+				$this->showDriverList($chatid, $username, $text);
+				break;
+			case $text === '/updatedriver'://Udah bisa
+				$this->showUpdateDriver($chatid, $username, $text);
+				break;
+			case $text === '/pesandriver'://udah bisa
+				$month_input = date("Y-m");
+				$this->tampilCalendar($chatid, $month_input, $callback_query_id);
+				break;
+			case $text === '/updatetiket'://udah bisa
+				$this->updateTiket($chatid, $text, $username);
+				break;
+			case $text === '/selesai'://BUAT CONFIRM DRIVER SELESAI BERTUGAS
+				 $this->konfirmasi($chatid, $username, $text);
+				 break;
+			//BUAT CONFIRM DRIVER SELESAI BERTUGAS
+			case substr($text,0,8) === '/confirm':
+				 $listparams = substr($text,8);
+				 $params = explode('#',$listparams);
+				 unset($params[0]);
+				 $params = array_values($params);
+
+					if(count($params)==1){
+						$this->updateStatusDriver($chatid, $params);
+					}
+				break;
+			//BUAT UPDATE TIKET
+			case substr($text,0,7) === '/updtkt':
+				$listparams = substr($text,7);
+				$params = explode('#',$listparams);
+				unset($params[0]);
+				$params = array_values($params);
+
+				if(count($params)==1){
+					$this->showDataTiket($chatid, $params);
+				}elseif (count($params)==2) {
+					if ($params[1]==="APPROVE") {
+						$this->setDriver($chatid, $params);
+					}else {
+						$this->hapusTiket($chatid, $params);
+					}
+				}else{
+					$this->updateLog($chatid, $params);
+				}
+			break;
+
+			//BUAT PESAN DRIVER
+			case substr($text,0,7) === '/psndrv':
+				$listparams = substr($text,7);
+				$params = explode('#',$listparams);
+				unset($params[0]);
+				$params = array_values($params);
+
+				if(count($params)==1){
+					$apaya=substr($params[0],0,4);
+					if ($apaya === 'ubah') {
+						$month_input = substr($params[0],4,7);
+						$this->ubahCalendar($chatid, $messageid, $month_input, $params);
+					}//endif
+					else {
+						$today = strftime('%F');
+						if ($params[0]<$today) {
+							$this->pesanError($chatid);
+						}else {
+							$this->aturPic($chatid, $params);
+						}//end else
+					// $this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
+				}//end else
+				}elseif(count($params)==2){
+						$this->lokasi($chatid, $params);
+				}elseif(count($params)==3){
+					$this->cekPesan($chatid, $params);
+				}elseif (count($params)==4) {
+					$this->simpanPesanan($chatid, $params, $username);
+				}
+				//$response_txt .= "Mengenal command dan berhasil merespon\n";
+				break;
+
+			//BUAT UPDATE DRIVER
+			case substr($text,0,7) === '/upddrv':
+				$listparams = substr($text,7);
+				$params = explode('#',$listparams);
+				unset($params[0]);
+				$params = array_values($params);
+
+				if(count($params)==1){
+					$this->confirmDriver($chatid, $params);
+				}elseif(count($params)==2){
+					if($params[1]=="set"){
+						$this->setPic($chatid, $params);
+					}else{
+						$this->releaseDriver($chatid, $params);
+					}
+				}elseif(count($params)==3){
+					// $callback_query_id=0;
+					$month_input = date("Y-m");
+					$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
+				}elseif(count($params)==4){
+					// $callback_query_id=0;
+					$today = strftime('%F');
+					if ($params[3]<$today) {
+						$this->errorMessage($chatid);
+					}else {
+						$this->setLocation($chatid, $params);
+					}
+				}elseif(count($params)==5){
+					// $callback_query_id=0;
+					$this->saveTheUpdates($chatid, $params, $username);
+				}//end elseif
+
+				//$response_txt .= "Mengenal command dan berhasil merespon\n";
+				break;
+
+			case substr($text,0,6) === 'change':
+				$params = explode('#',$text);
+				unset($params[0]);
+				$params = array_values($params);
+				$month_input = substr($text,6,7);
+				$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
+				break;
+			case substr($text,0,4) === 'ubah':
+				$month_input = substr($text,4,7);
+				$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
+				break;
+			default:
+				 $this->defaultMessage($chatid, $text, $username);
+				 break;
+		}//end switch
+
+  }//akhir fungsi respond
 
 	public function webhook()
   {//awal fungsi webhook
 		try{//awal try
 			$request = Telegram::getWebhookUpdates();
-
-			// if(isset($request['callback_query'])){//buat ngecek apakah yg terbaru itu jenis callback query atau bukan
-	    //   $text = $request['callback_query']['data'];
-	    //   $chatid = $request['callback_query']['message']['chat']['id'];
-			// 	$chatid = $request['callback_query']['message']['chat']['username'];
-	    //   $callback_query_id = $request['callback_query']['id'];
-	    // }else{//buat kasus $request bukan callback_query
-	    //   $text = $request['message']['text'];
-	    //   $chatid = $request['message']['chat']['id'];
-			// 	$username = $request['message']['chat']['username'];
-	    //   $callback_query_id = 0;
-	    // }//end else
 
 			if($request->isType('callback_query')){
 				$query = $request->getCallbackQuery();
@@ -244,6 +236,7 @@ class FinalProject extends Controller
 	            $this->updateStatusDriver($chatid, $params);
 	          }
 	        break;
+
 				//BUAT UPDATE TIKET
 				case substr($text,0,7) === '/updtkt':
 					$listparams = substr($text,7);
@@ -275,7 +268,7 @@ class FinalProject extends Controller
 						$apaya=substr($params[0],0,4);
 						if ($apaya === 'ubah') {
 							$month_input = substr($params[0],4,7);
-							$this->ubahCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
+							$this->ubahCalendar($chatid, $messageid, $month_input, $params);
 						}//endif
 						else {
 							$today = strftime('%F');
@@ -284,7 +277,6 @@ class FinalProject extends Controller
 							}else {
 								$this->aturPic($chatid, $params);
 							}//end else
-						// $this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
 					}//end else
 					}elseif(count($params)==2){
 							$this->lokasi($chatid, $params);
@@ -332,8 +324,11 @@ class FinalProject extends Controller
 					break;
 
 				case substr($text,0,6) === 'change':
+					$params = explode('#',$text);
+					unset($params[0]);
+					$params = array_values($params);
 					$month_input = substr($text,6,7);
-					$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
+					$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
 					break;
 				case substr($text,0,4) === 'ubah':
 					$month_input = substr($text,4,7);
@@ -634,19 +629,13 @@ class FinalProject extends Controller
 		]);
 	}//akhir fungsi
 
-	public function changeCalendar($chatid, $messageid, $month_input, $cbid)
+	public function changeCalendar($chatid, $messageid, $month_input,$callback_query_id, $params)
   {//awal fungsi
-		if($cbid != 0){
-			$responses = Telegram::answerCallbackQuery([
-				'callback_query_id' => $cbid,
-				'text' => '',
-				'show_alert' => false
-			]);
-		}//end if
 
 		$message = "";
+    $message = "*PILIH TANGGAL PENUGASAN*\n";
 		$message .= DateTime::createFromFormat('Y-m-d',$month_input."-01")->format("F Y")." \n";
-		$calendar = $this->createCalendar($month_input);
+		$calendar = $this->createCalendar($month_input, $params);
 
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
@@ -657,6 +646,7 @@ class FinalProject extends Controller
 		$response = Telegram::editMessageText([
 		  'chat_id' => $chatid,
 		  'message_id' =>$messageid,
+      'parse_mode'=>'markdown',
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
 		]);
@@ -690,8 +680,8 @@ class FinalProject extends Controller
 		$next_date = DateTime::createFromFormat('Y-m-d',$eek)->add(new DateInterval('P1M'))->format("Y-m");
 
 		$calendarperrow = [
-			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => "change".$prev_date]),
-			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => "change".$next_date])
+			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => "change".$prev_date.'#'.$params[0]."#".$params[1]."#".$params[2]."#".$month_input."-".substr("0".strval($date),-2)]),
+			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => "change".$next_date.'#'.$params[0]."#".$params[1]."#".$params[2]."#".$month_input."-".substr("0".strval($date),-2)])
 		];
 		$calendar[] = $calendarperrow;
 
@@ -1025,10 +1015,17 @@ class FinalProject extends Controller
 		$status="";
 		if($params[3]==="BENAR"){
 		$status="";
-		DB::table('pemesanan')->insert(['pic'=>$params[1],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[0], 'lokasi'=>$params[2]]);
+        $newpemesanan = Pemesanan::create([
+            'chatid' => $chatid,
+            'username' => $username,
+            'pic' => $params[1],
+            'tanggal' => $params[0] ,
+            'lokasi' => $params[2]
+        ]);
+		//DB::table('pemesanan')->insert(['pic'=>$params[1],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[0], 'lokasi'=>$params[2]]);
 		$pesan="Hallo, ada pemesanan dari bagian ".$params[1]." atas nama ".$username." dengan tujuan ".$params[2]." pada tanggal ".$params[0].". Silakan click /updatetiket untuk memproses tiket yang ada";
-		$message = "*Pemesanan Berhasil*\n";
-		$result=
+		$message = "*Pemesanan Berhasil. Nomor tiket anda adalah : $newpemesanan->no_tiket*\n";
+		//$result=
 
 
 		$response = Telegram::sendMessage([
@@ -1051,7 +1048,6 @@ class FinalProject extends Controller
 		}//akhir else
 	}//akhir fungsi
 
-	// public function
 
 
 	/*
@@ -1064,9 +1060,10 @@ class FinalProject extends Controller
 		$statusTiket="SELESAI";
 		$nomor=$params[0];
 		DB::table('pemesanan')->where(['no_tiket'=>$nomor])->update(['status'=>$statusTiket]);
-		$message="Tiket dengan nomor tiket ".$nomor. " telah berhasil dihapus.";
+		$message="*Tiket dengan nomor tiket $nomor telah berhasil dihapus.*";
 		$response = Telegram::sendMessage([//buat ngirim ke admin
 			'chat_id' => $chatid,
+			'parse_mode' => 'markdown',
 			'text' => $message
 		]);
 	}
@@ -1105,46 +1102,57 @@ class FinalProject extends Controller
 	}//akhir fungsi updateLog
 
 	public function setDriver($chatid, $params)//fungsi buat update driver
-	{//awal fungsi
-		$driver = [];
-		$keyboard = [];
-		$message="";
-		$nomor=$params[0];
-		$result = DB::table('driver')->where(['status'=>"Standby"])->get();
-		$message = "*PILIH DRIVER YANG AKAN DI-UPDATE* \n\n";
-		$max_col = 3;
-		$col =0;
-		if ($result->count()>0){
-			for ($i=0;$i<$result->count();$i++){
-				if($col<$max_col){
-					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$params[1]."#".$result[$i]->id]);
-				}else{
-					$col=0;
-					$driver[] = $driverperrow;
-					$driverperrow = [];
-					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$params[1]."#".$result[$i]->id]);
-				}//end else
-				$col++;
-			}//end for
-		}//end if
-		if($col>0){
-			$col=0;
-			$driver[] = $driverperrow;
-		}//end if
+  {//awal fungsi
+    $nomor=$params[0];
+    $get=DB::table('pemesanan')->where(['no_tiket'=>$nomor])->first();
+    if (($get->status)===null) {
+      $driver = [];
+  		$keyboard = [];
+  		$message="";
+  		$result = DB::table('driver')->where(['status'=>"Standby"])->get();
+  		$message = "*PILIH DRIVER YANG AKAN DI-UPDATE* \n\n";
+  		$max_col = 3;
+  		$col =0;
+  		if ($result->count()>0){
+  			for ($i=0;$i<$result->count();$i++){
+  				if($col<$max_col){
+  					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$params[1]."#".$result[$i]->id]);
+  				}else{
+  					$col=0;
+  					$driver[] = $driverperrow;
+  					$driverperrow = [];
+  					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$params[1]."#".$result[$i]->id]);
+  				}//end else
+  				$col++;
+  			}//end for
+  		}//end if
+  		if($col>0){
+  			$col=0;
+  			$driver[] = $driverperrow;
+  		}//end if
 
-		$reply_markup = Telegram::replyKeyboardMarkup([
-			'resize_keyboard' => true,
-			'one_time_keyboard' => true,
-				'inline_keyboard' => $driver
-		]);
+  		$reply_markup = Telegram::replyKeyboardMarkup([
+  			'resize_keyboard' => true,
+  			'one_time_keyboard' => true,
+  		    'inline_keyboard' => $driver
+  		]);
 
-		$response = Telegram::sendMessage([
-			'chat_id' => $chatid,
-			'parse_mode' => 'markdown',
-			'text' => $message,
-			'reply_markup' => $reply_markup
-		]);
+  		$response = Telegram::sendMessage([
+  		  'chat_id' => $chatid,
+  		  'parse_mode' => 'markdown',
+  		  'text' => $message,
+  		  'reply_markup' => $reply_markup
+  		]);
+    }//endif
+    else {
+      $message = "*Tiket sudah tidak berlaku*";
 
+      $response = Telegram::sendMessage([
+        'chat_id'=>$chatid,
+        'parse_mode'=>'markdown',
+        'text'=>$message
+      ]);
+    }
 	}//akhir fungsi
 
 	public function updateTiket($chatid, $text, $username)//udah bisa

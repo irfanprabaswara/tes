@@ -79,10 +79,14 @@ class updatedriver extends Controller
 				}//end elseif
 				break;
 
-			case substr($text,0,6) === 'change':
-				$month_input = substr($text,6,7);
-				$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
-				break;
+        case substr($text,0,6) === 'change':
+          $params = explode('#',$text);
+          unset($params[0]);
+          $params = array_values($params);
+    			$month_input = substr($text,6,7);
+          // changeCalendar($chatid, $messageid, $month_input, $params)
+    			$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
+    			break;
 		}//end switch
   }//akhir fungsi respond
 
@@ -117,68 +121,63 @@ class updatedriver extends Controller
 				$callback_query_id = 0;
 			}//end else
 
-			switch($text)
-      {//mulai switch
-				case $text === '/start'://udah bisa
-					$this->showWelcomeMessage($chatid);
-					break;
-				case $text==='/menu'://udah bisa
-					$this->showMenu($chatid);
-					break;
-				case $text === 'website'://udah bisa
-				   $this->showWebsite($chatid, $callback_query_id);
-					   break;
-				case $text === 'contact'://udah bisa
-				   $this->showContact($chatid, $callback_query_id);
-				   break;
-				case $text === '/driver'://udah bisa
-					$this->showDriverList($chatid, $username, $text);
-					break;
-				case $text === '/updatedriver'://Udah bisa
-					$this->showUpdateDriver($chatid, $username, $text);
-					break;
-				case substr($text,0,7) === '/upddrv':
-					$listparams = substr($text,7);
-					$params = explode('#',$listparams);
-					unset($params[0]);
-					$params = array_values($params);
+      switch($text)
+  		{//mulai switch
+  			case $text === '/start'://udah bisa
+  				$this->showWelcomeMessage($chatid);
+  				break;
+  			case $text==='/menu'://udah bisa
+  				$this->showMenu($chatid);
+  				break;
+  			case $text === 'website'://udah bisa
+  				 $this->showWebsite($chatid, $callback_query_id);
+  					 break;
+  			case $text === 'contact'://udah bisa
+  				 $this->showContact($chatid, $callback_query_id);
+  				 break;
+  			case $text === '/driver'://udah bisa
+  				$this->showDriverList($chatid, $username, $text);
+  				break;
+  			case $text === '/updatedriver'://Udah bisa
+  				$this->showUpdateDriver($chatid, $username, $text);
+  				break;
+  			/*BUAT UPDATE DRIVER*/
+  			case substr($text,0,7) === '/upddrv':
+  				$listparams = substr($text,7);
+  				$params = explode('#',$listparams);
+  				unset($params[0]);
+  				$params = array_values($params);
 
-					if(count($params)==1){
-						$this->confirmDriver($chatid, $params);
-					}elseif(count($params)==2){
-						if($params[1]=="set"){
-							$this->setPic($chatid, $params);
-						}else{
-							$this->releaseDriver($chatid, $params);
-						}
-					}elseif(count($params)==3){
-						// $callback_query_id=0;
-						$month_input = date("Y-m");
-						$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
-					}elseif(count($params)==4){
-						// $callback_query_id=0;
-            $today = strftime('%F');
-						if ($params[3]<$today) {
-							$this->errorMessage($chatid);
-            }else {
-              $this->setLocation($chatid, $params);
-            }
-					}elseif(count($params)==5){
-						// $callback_query_id=0;
-						$this->saveTheUpdates($chatid, $params, $username);
-					}//end elseif
+  				if(count($params)==1){
+  					$this->confirmDriver($chatid, $params);
+  				}elseif(count($params)==2){
+  					if($params[1]=="set"){
+  						$this->setPic($chatid, $params);
+  					}else{
+  						$this->releaseDriver($chatid, $params);
+  					}
+  				}elseif(count($params)==3){
+  					// $callback_query_id=0;
+  					$month_input = date("Y-m");
+  					$this->showCalendar($chatid, $params, $month_input, $callback_query_id);
+  				}elseif(count($params)==4){
+  					// $callback_query_id=0;
+  					$this->setLocation($chatid, $params);
+  				}elseif(count($params)==5){
+  					// $callback_query_id=0;
+  					$this->saveTheUpdates($chatid, $params, $username);
+  				}//end elseif
+  				break;
 
-					//$response_txt .= "Mengenal command dan berhasil merespon\n";
-					break;
-
-				case substr($text,0,6) === 'change':
-					$month_input = substr($text,6,7);
-					$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
-					break;
-				default:
-				   $this->defaultMessage($chatid, $text, $username);
-				   break;
-			}//end switch
+          case substr($text,0,6) === 'change':
+            $params = explode('#',$text);
+            unset($params[0]);
+            $params = array_values($params);
+      			$month_input = substr($text,6,7);
+            // changeCalendar($chatid, $messageid, $month_input, $params)
+      			$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
+      			break;
+  		}//end switch
 		}catch (\Exception $e) {
 			Telegram::sendMessage([
 				'chat_id' => $chatid,
@@ -468,19 +467,13 @@ class updatedriver extends Controller
 		]);
 	}//akhir fungsi
 
-	public function changeCalendar($chatid, $messageid, $month_input, $cbid)
+	public function changeCalendar($chatid, $messageid, $month_input,$callback_query_id, $params)
   {//awal fungsi
-		if($cbid != 0){
-			$responses = Telegram::answerCallbackQuery([
-				'callback_query_id' => $cbid,
-				'text' => '',
-				'show_alert' => false
-			]);
-		}//end if
 
 		$message = "";
+    $message = "*PILIH TANGGAL PENUGASAN*\n";
 		$message .= DateTime::createFromFormat('Y-m-d',$month_input."-01")->format("F Y")." \n";
-		$calendar = $this->createCalendar($month_input);
+		$calendar = $this->createCalendar($month_input, $params);
 
 		$reply_markup = Telegram::replyKeyboardMarkup([
 			'resize_keyboard' => true,
@@ -491,6 +484,7 @@ class updatedriver extends Controller
 		$response = Telegram::editMessageText([
 		  'chat_id' => $chatid,
 		  'message_id' =>$messageid,
+      'parse_mode'=>'markdown',
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
 		]);
@@ -524,8 +518,8 @@ class updatedriver extends Controller
 		$next_date = DateTime::createFromFormat('Y-m-d',$eek)->add(new DateInterval('P1M'))->format("Y-m");
 
 		$calendarperrow = [
-			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => "change".$prev_date]),
-			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => "change".$next_date])
+			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => "change".$prev_date.'#'.$params[0]."#".$params[1]."#".$params[2]."#".$month_input."-".substr("0".strval($date),-2)]),
+			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => "change".$next_date.'#'.$params[0]."#".$params[1]."#".$params[2]."#".$month_input."-".substr("0".strval($date),-2)])
 		];
 		$calendar[] = $calendarperrow;
 

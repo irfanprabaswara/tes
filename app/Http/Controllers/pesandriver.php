@@ -448,7 +448,7 @@ class pesandriver extends Controller
         ]);
 		//DB::table('pemesanan')->insert(['pic'=>$params[1],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[0], 'lokasi'=>$params[2]]);
 		$pesan="Hallo, ada pemesanan dari bagian ".$params[1]." atas nama ".$username." dengan tujuan ".$params[2]." pada tanggal ".$params[0].". Silakan click /updatetiket untuk memproses tiket yang ada";
-		$message = "*Pemesanan Berhasil dengan nomor tiket '.$newpemesanan->no_tiket.*\n";
+		$message = "*Pemesanan Berhasil. Nomor tiket anda adalah : $newpemesanan->no_tiket*\n";
 		//$result=
 
 

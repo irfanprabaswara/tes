@@ -77,9 +77,12 @@ class loop extends Controller
           }
   				break;
         case substr($text,0,6) === 'change':
+          $params = explode('#',$text);
+          unset($params[0]);
+          $params = array_values($params);
     			$month_input = substr($text,6,7);
           // changeCalendar($chatid, $messageid, $month_input, $params)
-    			$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id);
+    			$this->changeCalendar($chatid, $messageid, $month_input, $callback_query_id, $params);
     			break;
         default :
           $this->defaultMessage($chatid, $text, $username);
@@ -222,7 +225,7 @@ class loop extends Controller
 		]);
 	}//akhir fungsi
 
-	public function changeCalendar($chatid, $messageid, $month_input, $params)//masih error
+	public function changeCalendar($chatid, $messageid, $month_input,$callback_query_id, $params)//masih error
   {//awal fungsi
 		// if($cbid != 0){
 		// 	$responses = Telegram::answerCallbackQuery([
@@ -279,8 +282,8 @@ class loop extends Controller
 		$next_date = DateTime::createFromFormat('Y-m-d',$eek)->add(new DateInterval('P1M'))->format("Y-m");
 
 		$calendarperrow = [
-			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => "change".$prev_date]),
-			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => "change".$next_date])
+			Keyboard::inlineButton(['text' => 'Previous', 'callback_data' => "change".$prev_date.'#'.$params[0]."#".$params[1]."#".$month_input."-".substr("0".strval($date),-2)]),
+			Keyboard::inlineButton(['text' => 'Next', 'callback_data' => "change".$next_date.'#'.$params[0]."#".$params[1]."#".$month_input."-".substr("0".strval($date),-2)])
 		];
 		$calendar[] = $calendarperrow;
 

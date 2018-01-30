@@ -176,44 +176,57 @@ class updatetiket extends Controller
 
   public function setDriver($chatid, $params)//fungsi buat update driver
   {//awal fungsi
-		$driver = [];
-		$keyboard = [];
-		$message="";
     $nomor=$params[0];
-		$result = DB::table('driver')->where(['status'=>"Standby"])->get();
-		$message = "*PILIH DRIVER YANG AKAN DI-UPDATE* \n\n";
-		$max_col = 3;
-		$col =0;
-		if ($result->count()>0){
-			for ($i=0;$i<$result->count();$i++){
-				if($col<$max_col){
-					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$params[1]."#".$result[$i]->id]);
-				}else{
-					$col=0;
-					$driver[] = $driverperrow;
-					$driverperrow = [];
-					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$params[1]."#".$result[$i]->id]);
-				}//end else
-				$col++;
-			}//end for
-		}//end if
-		if($col>0){
-			$col=0;
-			$driver[] = $driverperrow;
-		}//end if
+    $get=DB::table('pemesanan')->where(['no_tiket'=>$nomor])->first();
+    if (($get->status)===null) {
+      $driver = [];
+  		$keyboard = [];
+  		$message="";
+  		$result = DB::table('driver')->where(['status'=>"Standby"])->get();
+  		$message = "*PILIH DRIVER YANG AKAN DI-UPDATE* \n\n";
+  		$max_col = 3;
+  		$col =0;
+  		if ($result->count()>0){
+  			for ($i=0;$i<$result->count();$i++){
+  				if($col<$max_col){
+  					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$params[1]."#".$result[$i]->id]);
+  				}else{
+  					$col=0;
+  					$driver[] = $driverperrow;
+  					$driverperrow = [];
+  					$driverperrow[] = Keyboard::inlineButton(['text' => $result[$i]->nama, 'callback_data' => '/updtkt#'.$params[0]."#".$params[1]."#".$result[$i]->id]);
+  				}//end else
+  				$col++;
+  			}//end for
+  		}//end if
+  		if($col>0){
+  			$col=0;
+  			$driver[] = $driverperrow;
+  		}//end if
 
-		$reply_markup = Telegram::replyKeyboardMarkup([
-			'resize_keyboard' => true,
-			'one_time_keyboard' => true,
-		    'inline_keyboard' => $driver
-		]);
+  		$reply_markup = Telegram::replyKeyboardMarkup([
+  			'resize_keyboard' => true,
+  			'one_time_keyboard' => true,
+  		    'inline_keyboard' => $driver
+  		]);
 
-		$response = Telegram::sendMessage([
-		  'chat_id' => $chatid,
-		  'parse_mode' => 'markdown',
-		  'text' => $message,
-		  'reply_markup' => $reply_markup
-		]);
+  		$response = Telegram::sendMessage([
+  		  'chat_id' => $chatid,
+  		  'parse_mode' => 'markdown',
+  		  'text' => $message,
+  		  'reply_markup' => $reply_markup
+  		]);
+    }//endif
+    else {
+      $message = "*Tiket sudah tidak berlaku*";
+
+      $response = Telegram::sendMessage([
+        'chat_id'=>$chatid,
+        'parse_mode'=>'markdown',
+        'text'=>$message
+      ]);
+    }
+
 
 	}//akhir fungsi
 
