@@ -15,6 +15,7 @@ use DateInterval;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Pemesanan;
 //PERLU DIPERHATIKAN
 
 class FinalProject extends Controller
@@ -439,7 +440,7 @@ class FinalProject extends Controller
 
 	public function errorMessage($chatid)
   {
-    $message="Silakan pilih kembali tanggal penugasan diatas.";
+    $message="Tanggal penugasan sudah kadaluarsa.\n Silakan pilih kembali tanggal penugasan diatas.";
     $response=Telegram::sendMessage([
       'chat_id'=>$chatid,
       'text'=>$message
@@ -1166,12 +1167,12 @@ class FinalProject extends Controller
 			if ($result->count()>0){
 				for ($i=0;$i<$result->count();$i++){
 					if($col<$max_col){
-						$tiketperrow[] = Keyboard::inlineButton(['text' =>"NOMOR TIKET : ".$result[$i]->no_tiket.",  TANGGAL PENGGUNAAN : ".$result[$i]->tanggal, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
+						$tiketperrow[] = Keyboard::inlineButton(['text' =>"NOMOR TIKET : ".$result[$i]->no_tiket.",  PENGGUNAAN : ".$result[$i]->tanggal, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
 					}else{
 						$col=0;
 						$tiket[] = $tiketperrow;
 						$tiketperrow = [];
-						$tiketperrow[] = Keyboard::inlineButton(['text' =>"NOMOR TIKET : ".$result[$i]->no_tiket.",  TANGGAL PENGGUNAAN : ".$result[$i]->tanggal, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
+						$tiketperrow[] = Keyboard::inlineButton(['text' =>"NOMOR TIKET : ".$result[$i]->no_tiket.",  PENGGUNAAN : ".$result[$i]->tanggal, 'callback_data' => '/updtkt#'.$result[$i]->no_tiket]);
 					}//end else
 					$col++;
 				}//end for
