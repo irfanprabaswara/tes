@@ -78,10 +78,19 @@ class FinalProject extends Controller
 				 unset($params[0]);
 				 $params = array_values($params);
 
-					if(count($params)==1){
-						$this->updateStatusDriver($chatid, $params);
-					}
-				break;
+				 if(count($params)==1){
+					 $take=DB::table('driver')->where(['id'=>$chatid])->first();
+					 if ($take->status==='Terpakai') {
+						 $this->updateStatusDriver($chatid, $params);
+					 }else {
+						 $response = Telegram::sendMessage([
+							 'chat_id' => $chatid,
+							 'text' => "Anda masih dalam status STANDBY"
+						 ]);
+					 }
+
+				 }
+			 break;
 
 			//BUAT UPDATE TIKET
 			case substr($text,0,7) === '/updtkt':
@@ -258,10 +267,19 @@ class FinalProject extends Controller
 	         unset($params[0]);
 	         $params = array_values($params);
 
-	          if(count($params)==1){
-	            $this->updateStatusDriver($chatid, $params);
-	          }
-	        break;
+					 if(count($params)==1){
+             $take=DB::table('driver')->where(['id'=>$chatid])->first();
+             if ($take->status==='Terpakai') {
+               $this->updateStatusDriver($chatid, $params);
+             }else {
+               $response = Telegram::sendMessage([
+           			'chat_id' => $chatid,
+           			'text' => "Anda masih dalam status STANDBY"
+           		]);
+             }
+
+           }
+         break;
 
 				//BUAT UPDATE TIKET
 				case substr($text,0,7) === '/updtkt':
@@ -719,6 +737,7 @@ class FinalProject extends Controller
   {//awal fungsi
 		$message="";
 		$location = [];
+		$locationperrow = [];
 		$driverid = $params[0];
 		$locationlist = ['DALAM KOTA', 'LUAR KOTA'];
 		$message = "*PILIH LOKASI PENUGASAN* \n\n";
@@ -1285,7 +1304,7 @@ class FinalProject extends Controller
 
 
 	/*
-		INI KODE KONFIRMASI DRIVER SELESAI BERTUGAS
+		INI KODE CONFIRM DRIVER SELESAI BERTUGAS
 		SELAMAT MENIKMATI
 	*/
 	public function konfirmasi($chatid, $username, $text)

@@ -91,7 +91,16 @@ class confirmSelesai extends Controller
           $params = array_values($params);
 
           if(count($params)==1){
-            $this->updateStatusDriver($chatid, $params);
+            $take=DB::table('driver')->where(['id'=>$chatid])->first();
+            if ($take->status==='Terpakai') {
+              $this->updateStatusDriver($chatid, $params);
+            }else {
+              $response = Telegram::sendMessage([
+          			'chat_id' => $chatid,
+          			'text' => "Anda masih dalam status STANDBY"
+          		]);
+            }
+
           }
         break;
 
