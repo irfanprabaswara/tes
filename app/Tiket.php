@@ -4,13 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Pemesanan extends Model
+class Tiket extends Model
 {
-    protected $table = 'pemesanan';
+    protected $table = 'tiket';
 
     protected $primaryKey = 'no_tiket';
 
     protected $fillable = [
+        'no_tiket',
         'chatid',
         'username',
         'pic',

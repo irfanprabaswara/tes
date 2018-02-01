@@ -15,10 +15,10 @@ use DateInterval;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Tiket;
+use App\Pemesanan;
 //PERLU DIPERHATIKAN
 
-class FinalProject extends Controller
+class Final extends Controller
 {//awal kelas
 
 	public function respond()
@@ -1063,7 +1063,7 @@ class FinalProject extends Controller
 		$status="";
 		if($params[3]==="BENAR"){
 		$status="";
-        $newpemesanan = Tiket::create([
+        $newpemesanan = Pemesanan::create([
             'chatid' => $chatid,
             'username' => $username,
             'pic' => $params[1],
@@ -1118,7 +1118,7 @@ class FinalProject extends Controller
 	{
 		$statusTiket="SELESAI";
 		$nomor=$params[0];
-		DB::table('tiket')->where(['no_tiket'=>$nomor])->update(['status'=>$statusTiket]);
+		DB::table('pemesanan')->where(['no_tiket'=>$nomor])->update(['status'=>$statusTiket]);
 		$message="*Tiket dengan nomor tiket $nomor telah berhasil dihapus.*";
 		$response = Telegram::sendMessage([//buat ngirim ke admin
 			'chat_id' => $chatid,
@@ -1135,10 +1135,10 @@ class FinalProject extends Controller
 		// $idDriver='549021135';
 		$statusDriver="Terpakai";
 		$statusTiket="SELESAI";
-		$get = DB::table('tiket')->where(['no_tiket'=>$nomor])->first();
+		$get = DB::table('pemesanan')->where(['no_tiket'=>$nomor])->first();
 		$result = DB::table('driver')->where(['id'=>$idDriver])->first();
 		DB::table('log_driver')->insert(['tanggal'=>date('Y-m-d H:i:s'),'id'=>$idDriver,'no_tiket'=>$get->no_tiket,'pic'=>$get->pic,'tanggal_mulai'=>$get->tanggal, 'lokasi'=>$get->lokasi]);
-		DB::table('tiket')->where(['no_tiket'=>$nomor])->update(['status'=>$statusTiket]);
+		DB::table('pemesanan')->where(['no_tiket'=>$nomor])->update(['status'=>$statusTiket]);
 		DB::table('driver')->where(['id'=>$idDriver])->update(['status'=>$statusDriver]);
 		$pesan="Hallo, anda telah dipesan oleh bagian ".$get->pic." atas nama ".$get->username." dengan tanggal keberangkatan ".$get->tanggal." dengan tujuan ".$get->lokasi."";
 		$message = "Data Driver berhasil terupdate\n";
@@ -1163,7 +1163,7 @@ class FinalProject extends Controller
 	public function setDriver($chatid, $params)//fungsi buat update driver
   {//awal fungsi
     $nomor=$params[0];
-    $get=DB::table('tiket')->where(['no_tiket'=>$nomor])->first();
+    $get=DB::table('pemesanan')->where(['no_tiket'=>$nomor])->first();
     if (($get->status)===null) {
       $driver = [];
 			$driverperrow = [];
@@ -1217,7 +1217,7 @@ class FinalProject extends Controller
 	public function updateTiket($chatid, $text, $username)//udah bisa
 	{//awal fungsi update tiket
 		$today=date('Y-m-d H:i:s');
-		$result = DB::table('tiket')->where(['status'=>null])->get();
+		$result = DB::table('pemesanan')->where(['status'=>null])->get();
 		if ($result->count()>0){
 			$message = "*PILIH TIKET YANG AKAN DI-UPDATE* \n\n";
 			$max_col = 1;
@@ -1275,7 +1275,7 @@ class FinalProject extends Controller
 	{//awal fungsi show tiket
 		$message="";
 		$nomor=$params[0];
-		$result = DB::table('tiket')->where(['no_tiket'=>$nomor])->first();
+		$result = DB::table('pemesanan')->where(['no_tiket'=>$nomor])->first();
 		$message = "*DETAIL PESANAN* \n\n";
 		$message .= "NOMOR TIKET : ".$result->no_tiket."\n";
 		$message .= "NAMA PEMESAN : ".$result->username."\n";
