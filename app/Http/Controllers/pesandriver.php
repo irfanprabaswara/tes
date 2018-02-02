@@ -37,65 +37,46 @@ class pesandriver extends Controller
 			case $text === '/start':
 				$this->defaultMessage($chatid, $text, $username);
 				break;
-				case $text === '/pesandriver'://udah bisa
-					$month_input = date("Y-m");
-					$this->tampilCalendar($chatid, $month_input);
-					break;
+			case $text === '/pesandriver'://udah bisa
+				$month_input = date("Y-m");
+				$this->tampilCalendar($chatid, $month_input);
+				// $this->aturPic($chatid);
+				break;
 
-				case substr($text,0,7) === '/psndrv':
-					$listparams = substr($text,7);
-					$params = explode('#',$listparams);
-					unset($params[0]);
-					$params = array_values($params);
+			case substr($text,0,7) === '/psndrv':
+				$listparams = substr($text,7);
+				$params = explode('#',$listparams);
+				unset($params[0]);
+				$params = array_values($params);
 
-					if(count($params)==1){
-						$apaya=substr($params[0],0,4);
-						if ($apaya === 'ubah') {
-							$month_input = substr($params[0],4,7);
-							$this->ubahCalendar($chatid, $messageid, $month_input, $params);
-						}//endif
-						else {
-							$today = strftime('%F');
-							if ($params[0]<$today) {
-								$this->pesanError($chatid);
-							}else {
-								$tanggals = $params[0];
-								$cekDriver=DB::select(DB::raw("select * from driver left join tiket on id=id_driver and tanggal= :tanggal_input where id_driver is null or status='SELESAI'"), array('tanggal_input'=> $tanggals));
-								// $cekDriver=DB::table('driver')
-								// ->leftjoin('tiket', function($join){$join->on('id','=','id_driver')->on('tanggal',"=",DB::raw('tanggal'->$params[0]));})
-								// // ->where(function ($query)
-								// // 		{
-								// // 			$query  ->where('id_driver','=',null)
-								// // 							->orWhere('status','=','SELESAI');
-								// // 		})
-								// 		->get();
-
-									if ($cekDriver->count()>0) {
-										$this->aturPic($chatid, $params);
-									}
-									else {
-										$message="*MAAF, DRIVER PENUH*";
-										$response=Telegram::sendMessage([
-										'chat_id'=>$chatid,
-											'text'=>$message,
-											'parse_mode'=>'markdown'
-										]);
-									}//end else
-							}//end else
-					}//end else
-					}elseif(count($params)==2){
-							$this->lokasi($chatid, $params);
-					}elseif(count($params)==3){
-						$this->cekPesan($chatid, $params);
-					}elseif (count($params)==4) {
-						$this->simpanPesanan($chatid, $params, $username);
+				if(count($params)==1){
+					$apaya=substr($params[0],0,4);
+					if ($apaya === 'ubah') {
+						$month_input = substr($params[0],4,7);
+						$this->ubahCalendar($chatid, $messageid, $month_input, $params);
 					}
-					//$response_txt .= "Mengenal command dan berhasil merespon\n";
-					break;
-					case substr($text,0,4) === 'ubah':
-						$month_input = substr($text,4,7);
-						$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
-						break;
+					else {
+						$today = strftime('%F');
+						if ($params[0]<$today) {
+							$this->pesanError($chatid);
+						}else {
+							$this->aturPic($chatid);
+						}
+					// $this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
+				}}elseif(count($params)==2){
+						$this->lokasi($chatid, $params);
+				}elseif(count($params)==3){
+					$this->cekPesan($chatid, $params);
+				}elseif (count($params)==4) {
+					$this->simpanPesanan($chatid, $params, $username);
+				}
+				//$response_txt .= "Mengenal command dan berhasil merespon\n";
+				break;
+
+			// case substr($text,0,4) === 'ubah':
+			// 	$month_input = substr($text,4,7);
+			// 	$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
+			// 	break;
 
 			default:
 				 $this->defaultMessage($chatid, $text, $username);
@@ -129,100 +110,55 @@ class pesandriver extends Controller
 				case $text === '/start':
 					$this->defaultMessage($chatid, $text, $username);
 					break;
-					case $text === '/pesandriver'://udah bisa
-						$month_input = date("Y-m");
-						$this->tampilCalendar($chatid, $month_input);
-						break;
+				case $text === '/pesandriver'://udah bisa
+					$cekDriver=DB::table('driver')->where(['status'=>'Standby'])->get();
+					if ($cekDriver->count()>0) {
+						$this->tampilCalendar($chatid, $month_input, $callback_query_id);
+					}else {
+						$message="*MAAF, DRIVER PENUH*";
+						$response=Telegram::sendMessage([
+							'chat_id'=>$chatid,
+							'text'=>$message,
+							'parse_mode'=>'markdown'
+						]);
+					}
+					break;
 
-					case substr($text,0,7) === '/psndrv':
-						$listparams = substr($text,7);
-						$params = explode('#',$listparams);
-						unset($params[0]);
-						$params = array_values($params);
+				case substr($text,0,7) === '/psndrv':
+					$listparams = substr($text,7);
+					$params = explode('#',$listparams);
+					unset($params[0]);
+					$params = array_values($params);
 
-						if(count($params)==1){
-							$apaya=substr($params[0],0,4);
-							if ($apaya === 'ubah') {
-								$month_input = substr($params[0],4,7);
-								$this->ubahCalendar($chatid, $messageid, $month_input, $params);
-							}//endif
-							else {
-								$today = strftime('%F');
-								if ($params[0]<$today) {
-									$this->pesanError($chatid);
-								}else {
-								$tanggals = $params[0];
-									$response=Telegram::sendMessage([
-										'chat_id'=>$chatid,
-										'text'=>'Masuk'.$tanggals
-									]);
-									$cekDriver=DB::select('*')
-									  ->from('driver')
-									  ->join('tiket', function($join) {
-									   $join->on('id', '=', 'id_driver')
-									    ->on('tanggal', '=', $tanggals);
-									   })
-									  ->where('id_driver', 'is', null)
-									  ->where('status', '=', 'SELESAI', 'or')
-									  ->get();
-									// $cekDriver=DB::table('driver')
-									// 		->leftjoin('tiket', function($join){
-									// 									$join->on('id','=','id_driver')
-									// 											 ->on(DB::raw( "tanggal= ?"));
-									// 		})
-									// 		->where(function ($query){
-								  // 					$query  ->whereNull('id_driver')
-								  // 									->orWhere('status','=','SELESAI');
-								  // 				})
-									// 		->setBindings([$tanggals,])
-								  // 		->get();
-									// $cekDriver=DB::select(DB::raw("select * from driver left join tiket on id=id_driver and tanggal= :tanggal_input where id_driver is null or status='SELESAI'"), array('tanggal_input'=> $tanggals));
-									// $cekDriver=DB::table('driver')
-									// ->leftjoin('tiket', function($join){$join->on('id','=','id_driver')->on('tanggal',"=",DB::raw('tanggal'->$params[0]));})
-						  		// // ->where(function ($query)
-						  		// // 		{
-						  		// // 			$query  ->where('id_driver','=',null)
-						  		// // 							->orWhere('status','=','SELESAI');
-						  		// // 		})
-						  		// 		->get();
-									$response=Telegram::sendMessage([
-										'chat_id'=>$chatid,
-										'text'=>'Masuk kedua'
-									]);
-						  			if ($cekDriver->count()>0) {
-											$response=Telegram::sendMessage([
-												'chat_id'=>$chatid,
-												'text'=>'Masuk ketiga'
-											]);
-											$this->aturPic($chatid, $params);
-											$response=Telegram::sendMessage([
-												'chat_id'=>$chatid,
-												'text'=>'Masuk keempat'
-											]);
-										}
-										else {
-											$message="*MAAF, DRIVER PENUH*";
-											$response=Telegram::sendMessage([
-												'chat_id'=>$chatid,
-												'text'=>$message,
-												'parse_mode'=>'markdown'
-											]);
-										}//end else
-								}//end else
-						}//end else
-						}elseif(count($params)==2){
+					if(count($params)==1){
+						$apaya=substr($params[0],0,4);
+						if ($apaya === 'ubah') {
+							$month_input = substr($params[0],4,7);
+							$this->ubahCalendar($chatid, $messageid, $month_input, $params);
+						}//endif
+						else {
+							$today = strftime('%F');
+							if ($params[0]<$today) {
+								$this->pesanError($chatid);
+							}else {
+								$this->aturPic($chatid, $params);
+							}//end else
+						// $this->tampilCalendar($chatid, $params, $month_input, $callback_query_id);
+					}//end else
+					}elseif(count($params)==2){
 							$this->lokasi($chatid, $params);
-						}elseif(count($params)==3){
-							$this->cekPesan($chatid, $params);
-						}elseif (count($params)==4) {
-							$this->simpanPesanan($chatid, $params, $username);
-						}
-						//$response_txt .= "Mengenal command dan berhasil merespon\n";
-						break;
-						case substr($text,0,4) === 'ubah':
-							$month_input = substr($text,4,7);
-							$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
-							break;
+					}elseif(count($params)==3){
+						$this->cekPesan($chatid, $params);
+					}elseif (count($params)==4) {
+						$this->simpanPesanan($chatid, $params, $username);
+					}
+					//$response_txt .= "Mengenal command dan berhasil merespon\n";
+					break;
+
+				// case substr($text,0,4) === 'ubah':
+				// 	$month_input = substr($text,4,7);
+				// 	$this->buatCalendar($chatid, $messageid, $month_input, $callback_query_id);
+				// 	break;
 
 				default:
 					 $this->defaultMessage($chatid, $text, $username);
@@ -253,7 +189,7 @@ class pesandriver extends Controller
 		$message .= "TANGGAL PENUGASAN : ".$params[0]."\n";
 		$message .= "LOKASI PENUGASAN : ".$params[2]."\n\n";
 		$message .= "SILAKAN KLIK BENAR UNTUK MELANJUTKAN PEMESANAN DRIVER\n";
-		$setperrow = [];
+
 		$max_col = 2;
 		$col =0;
 
@@ -293,7 +229,6 @@ class pesandriver extends Controller
   {//awal fungsi
 		$message="";
 		$location = [];
-		$locationperrow = [];
 		$locationlist = ['DALAM KOTA', 'LUAR KOTA'];
 		$message = "*PILIH LOKASI PENUGASAN* \n\n";
 		$max_col = 2;
@@ -451,23 +386,12 @@ class pesandriver extends Controller
 	{//awal fungsi pic
 		$message="";
 		$pic = [];
-		$picperrow = [];
-		$tanggals = $params[0];
-		$result=DB::select(DB::raw("select * from driver left join tiket on id=id_driver and tanggal= :tanggal_input where id_driver is null or status='SELESAI'"), array('tanggal_input'=> $tanggals));
-		// $result=DB::table('driver')
-  // 				->leftjoin('tiket','id','=','id_driver')
-		//   		->where('tanggal','=',$params[0])
-		//   		->where(function ($query)
-		//   		{
-		//   			$query->where('id_driver','=',null)
-		//   				->orWhere('status','=','SELESAI');
-		//   			})
-		//   		->get();
+		$result=DB::table('driver')->where(['status'=>"Standby"])->get();
 		$piclist = ['LOG','SDM','MRK','LEGAL','OJL','ECH','KONSUMER','AO','BIT','ARK','ADK','RPKB','EBK','PRG','DJS','BRILINK','RTL','MKR','WPO','WPB1','WPB2','WPB3','WPB4','PINWIL','KANPUS','PIHAK LUAR','LAIN-LAIN'];
 		$message = "*PILIH PIC YANG PESAN* \n\n";
 		$max_col = 4;
 		$col =0;
-		if ($result->count()<2) {
+		if ($result->count()>0) {
 			for ($i=0;$i<count($piclist);$i++){
 				if($col<$max_col){
 					$picperrow[] = Keyboard::inlineButton(['text' => $piclist[$i], 'callback_data' => '/psndrv#'.$params[0]."#".$piclist[$i]]);
@@ -505,12 +429,27 @@ class pesandriver extends Controller
 		}
 	}//ini akhir fungsi pic
 
+	public function defaultMessage($chatid, $text, $username) //ini untuk menampilkan pesan default
+	{
+		$message = "Mau apa hayo? Bingung? cek /menu";
+		$response = Telegram::sendMessage([
+			'chat_id' => $chatid,
+			// 'parse_mode' => 'markdown',
+			'text' => $message
+		]);
+		$response = Telegram::sendMessage([
+			'chat_id' => 437329516,
+			// 'parse_mode' => 'markdown',
+			'text' => "akun : ".$username." telah mengirim pesan ".$text." ke bot anda"
+		]);
+	}//ini akhir fungsi
+
 	public function simpanPesanan($chatid, $params, $username)
   {//awal fungsi
 		$status="";
 		if($params[3]==="BENAR"){
 		$status="";
-        $newpemesanan = Tiket::create([
+        $newpemesanan = Pemesanan::create([
             'chatid' => $chatid,
             'username' => $username,
             'pic' => $params[1],
@@ -528,10 +467,9 @@ class pesandriver extends Controller
 			'parse_mode' => 'markdown',
 			'text' => $message
 		]);
-
 		// $this->pesanUser($chatid);
 		$response = Telegram::sendMessage([
-		  'chat_id' => 437329516,//kalo mau ke admin tinggal diganti @idAdmin
+		  'chat_id' => 437329516,//kalo mau ke supirnya tinggal diganti @idDriver
 		  'parse_mode' => 'markdown',
 		  'text' => $pesan
 		]);
@@ -543,6 +481,8 @@ class pesandriver extends Controller
 			]);
 		}//akhir else
 	}//akhir fungsi
+
+	// public function
 
 }//akhir kelas
 
