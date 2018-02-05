@@ -12,6 +12,7 @@ class Tiket extends Model
 
     protected $fillable = [
         'no_tiket',
+        'id_driver',
         'chatid',
         'username',
         'pic',

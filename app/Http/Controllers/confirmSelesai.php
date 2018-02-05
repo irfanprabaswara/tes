@@ -36,7 +36,7 @@ class confirmSelesai extends Controller
         $this->defaultMessage($chatid, $text, $username);
         break;
       case $text === '/selesai'://udah bisa
-        $this->konfirmasi($chatid, $username, $text);
+        $this->tampilTiketDriver($chatid);
         break;
 
       case substr($text,0,8) === '/confirm':
@@ -45,10 +45,17 @@ class confirmSelesai extends Controller
         unset($params[0]);
         $params = array_values($params);
 
-        if(count($params)==1){
-          $this->updateStatusDriver($chatid, $params);
-        }
-      break;
+      //   if(count($params)==1){
+      //
+      //     $take=DB::table('driver')->where(['id'=>$chatid])->first();
+      //     if ($take->status==='Terpakai') {
+      //       $this->updateStatusDriver($chatid, $params);
+      //     }else {
+      //
+      //     }
+      //
+      //   }
+      // break;
 
       default:
          $this->defaultMessage($chatid, $text, $username);
@@ -81,7 +88,7 @@ class confirmSelesai extends Controller
           $this->defaultMessage($chatid, $text, $username);
           break;
         case $text === '/selesai'://udah bisa
-          $this->konfirmasi($chatid, $username, $text);
+          $this->tampilTiketDriver($chatid);
           break;
 
         case substr($text,0,8) === '/confirm':
@@ -91,16 +98,13 @@ class confirmSelesai extends Controller
           $params = array_values($params);
 
           if(count($params)==1){
-            $take=DB::table('driver')->where(['id'=>$chatid])->first();
-            if ($take->status==='Terpakai') {
-              $this->updateStatusDriver($chatid, $params);
-            }else {
-              $response = Telegram::sendMessage([
-          			'chat_id' => $chatid,
-          			'text' => "Anda masih dalam status STANDBY"
-          		]);
-            }
-
+            $this->detailTiket($chatid, $params);
+          }
+          elseif (count($params)==2) {
+            $this->konfirmasi($chatid, $params);
+          }
+          elseif (count($params)=3) {
+            $this->updateStatusTiket();
           }
         break;
 
@@ -116,18 +120,101 @@ class confirmSelesai extends Controller
     }//end catch
   }//akhir fungsi webhook
 
-  public function konfirmasi($chatid, $username, $text)
-  {//awal fungsi konfirmasi
-    $get=DB::table('driver')->where(['id'=>$chatid])->first();
-    $getStatus=[];
-    $getStatus=$get->status;
-    $idDriver=[];
-    $idDriver=$chatid;
-    if ($getStatus==='Terpakai'){
+  public function tampilTiketDriver($chatid)
+  {
+    $response = Telegram::sendMessage([
+      'chat_id' => $chatid,
+      'text' => "pertama"
+    ]);
+    $today=date('Y-m-d');
+    $result=DB::table('tiket')->where('id_driver',"=",$chatid)
+                              ->where('status',"=",'null')
+                              ->where('tanggal','<=',$today)
+                              ->get();
+    $response = Telegram::sendMessage([
+            'chat_id' => $chatid,
+            'text' => "KEDUA"
+    ]);
+      if ($result->count()>0){
+        $message = "*PILIH TIKET YANG AKAN ANDA KONFIRMASI* \n\n";
+    		$max_col = 1;
+    		$col =0;
+    		if ($result->count()>0){
+    			for ($i=0;$i<$result->count();$i++){
+    				if($col<$max_col){
+    					$tiketperrow[] = Keyboard::inlineButton(['text' =>"NOMOR TIKET : ".$result[$i]->id."(".$result[$i]->pic.") (".$result[$i]->tanggal.")", 'callback_data' => '/confirm#'.$result[$i]->id]);
+    				}else{
+    					$col=0;
+    					$tiket[] = $tiketperrow;
+    					$tiketperrow = [];
+    					$tiketperrow[] = Keyboard::inlineButton(['text' =>"NOMOR TIKET : ".$result[$i]->id."(".$result[$i]->pic.") (".$result[$i]->tanggal.")", 'callback_data' => '/confirm#'.$result[$i]->id]);
+    				}//end else
+    				$col++;
+    			}//end for
+    		}//end if
+    		if($col>0){
+    			$col=0;
+    			$tiket[] = $tiketperrow;
+    		}//end if
+
+        $reply_markup = Telegram::replyKeyboardMarkup([
+    			'resize_keyboard' => true,
+    			'one_time_keyboard' => true,
+    		  'inline_keyboard' => $tiket
+    		]);
+
+    		$response = Telegram::sendMessage([
+    		  'chat_id' => $chatid,
+    		  'parse_mode' => 'markdown',
+    		  'text' => $message,
+    		  'reply_markup' => $reply_markup
+    		]);
+      }
+      else {
+        $response = Telegram::sendMessage([
+          'chat_id' => $chatid,
+          'text' => "Anda masih dalam status STANDBY"
+        ]);
+      }//endelse
+  }//end function
+
+  public function detailTiket($chatid, $params)
+  {
+    $message="";
+    $nomor=$params[0];
+		$result = DB::table('tiket')->where(['id'=>$nomor])->first();
+		$message = "*DETAIL PESANAN* \n\n";
+		$message .= "NOMOR TIKET : ".$result->id."\n";
+    $message .= "NAMA PEMESAN : ".$result->username."\n";
+    $message .= "PIC : ".$result->pic."\n";
+    $message .= "TANGGAL PENUGASAN : ".$result->tanggal."\n";
+    $message .= "TUJUAN PENUGASAN : ".$result->lokasi."\n";
+    // $driver[] = Keyboard::inlineButton(['text' => "URUS", 'callback_data' => '/updtkt#'.$params[0]]);
+
+    $inlineLayout = [[
+      Keyboard::inlineButton(['text' => 'KONFIRMASI SELESAI', 'callback_data' => '/confirm#'.$params[0]."#DONE"])
+    ]];
+
+    $reply_markup = Telegram::replyKeyboardMarkup([
+      'resize_keyboard' => true,
+      'one_time_keyboard' => true,
+      'inline_keyboard' => $inlineLayout
+    ]);
+
+    $response = Telegram::sendMessage([
+      'chat_id' => $chatid,
+      'parse_mode' => 'markdown',
+      'text' => $message,
+      'reply_markup' => $reply_markup
+    ]);
+  // }
+
+  public function konfirmasi($chatid, $params)
+  {
     $pesanDriver="Terima kasih atas konfirmasi dan kerjasama anda.";
     $message="Driver atas nama ".$username." telah selesai mengerjakan tugas. Silakan click disini untuk mengubah status driver yang bersangkutan menjadi stanby";
     $inlineLayout = [[
-			Keyboard::inlineButton(['text' => 'DISINI', 'callback_data' => '/confirm#'.$idDriver])
+			Keyboard::inlineButton(['text' => 'DISINI', 'callback_data' => '/confirm#'.$params[0]."#".$params[1]."#SELESAI"])
 		]];
 
     $response = Telegram::sendMessage([
@@ -147,20 +234,13 @@ class confirmSelesai extends Controller
 		  'text' => $message,
 		  'reply_markup' => $reply_markup
 		]);
+  }//akhir fungsi
 
-    }else {
-      $response = Telegram::sendMessage([
-  			'chat_id' => $chatid,
-  			'text' => "Anda masih dalam status STANDBY".$text
-  		]);
-    }//akhir else
-  }//akhir fungsi konfirmasi
-
-  public function updateStatusDriver($chatid, $params)
+  public function updateStatusTiket($chatid, $params)
   {//awal fungsi updateLog
-    $idDriver=$params[0];
-		$statusDriver="Standby";
-    DB::table('driver')->where(['id'=>$idDriver])->update(['status'=>$statusDriver]);
+    $nomor=$params[0];
+		$statusTiket="SELESAI";
+    DB::table('tiket')->where(['id'=>$nomor])->update(['status'=>$statusTiket]);
     $message="Status driver telah terupdate";
 
     $response = Telegram::sendMessage([//buat ngirim ke pemesan
