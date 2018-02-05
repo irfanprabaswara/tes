@@ -45,17 +45,16 @@ class confirmSelesai extends Controller
         unset($params[0]);
         $params = array_values($params);
 
-      //   if(count($params)==1){
-      //
-      //     $take=DB::table('driver')->where(['id'=>$chatid])->first();
-      //     if ($take->status==='Terpakai') {
-      //       $this->updateStatusDriver($chatid, $params);
-      //     }else {
-      //
-      //     }
-      //
-      //   }
-      // break;
+        if(count($params)==1){
+          $this->detailTiket($chatid, $params);
+        }
+        elseif (count($params)==2) {
+          $this->konfirmasi($chatid, $params);
+        }
+        elseif (count($params)==3) {
+          $this->updateStatusTiket($chatid, $params);
+        }
+      break;
 
       default:
          $this->defaultMessage($chatid, $text, $username);
@@ -103,8 +102,8 @@ class confirmSelesai extends Controller
           elseif (count($params)==2) {
             $this->konfirmasi($chatid, $params);
           }
-          elseif (count($params)=3) {
-            $this->updateStatusTiket();
+          elseif (count($params)==3) {
+            $this->updateStatusTiket($chatid, $params);
           }
         break;
 
@@ -128,8 +127,8 @@ class confirmSelesai extends Controller
     ]);
     $today=date('Y-m-d');
     $result=DB::table('tiket')->where('id_driver',"=",$chatid)
-                              ->where('status',"=",'null')
-                              ->where('tanggal','<=',$today)
+                              ->where('status',"=",null)
+                              ->where('tanggal','<',$today)
                               ->get();
     $response = Telegram::sendMessage([
             'chat_id' => $chatid,
@@ -207,10 +206,13 @@ class confirmSelesai extends Controller
       'text' => $message,
       'reply_markup' => $reply_markup
     ]);
-  // }
+  }//end function
 
   public function konfirmasi($chatid, $params)
   {
+    $nomor=$params[0];
+		$result = DB::table('tiket')->where(['id'=>$nomor])->first();
+    $username=$result->username;
     $pesanDriver="Terima kasih atas konfirmasi dan kerjasama anda.";
     $message="Driver atas nama ".$username." telah selesai mengerjakan tugas. Silakan click disini untuk mengubah status driver yang bersangkutan menjadi stanby";
     $inlineLayout = [[
