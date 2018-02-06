@@ -121,19 +121,11 @@ class confirmSelesai extends Controller
 
   public function tampilTiketDriver($chatid)
   {
-    $response = Telegram::sendMessage([
-      'chat_id' => $chatid,
-      'text' => "pertama"
-    ]);
     $today=date('Y-m-d');
     $result=DB::table('tiket')->where('id_driver',"=",$chatid)
                               ->where('status',"=",null)
-                              ->where('tanggal','<',$today)
+                              ->where('tanggal','<=',$today)
                               ->get();
-    $response = Telegram::sendMessage([
-            'chat_id' => $chatid,
-            'text' => "KEDUA"
-    ]);
       if ($result->count()>0){
         $message = "*PILIH TIKET YANG AKAN ANDA KONFIRMASI* \n\n";
     		$max_col = 1;
@@ -191,7 +183,8 @@ class confirmSelesai extends Controller
     // $driver[] = Keyboard::inlineButton(['text' => "URUS", 'callback_data' => '/updtkt#'.$params[0]]);
 
     $inlineLayout = [[
-      Keyboard::inlineButton(['text' => 'KONFIRMASI SELESAI', 'callback_data' => '/confirm#'.$params[0]."#DONE"])
+      Keyboard::inlineButton(['text' => 'KONFIRMASI SELESAI', 'callback_data' => '/confirm#'.$params[0]."#DONE"]),
+      Keyboard::inlineButton(['text' => 'KEMBALI', 'callback_data' => '/selesai'])
     ]];
 
     $reply_markup = Telegram::replyKeyboardMarkup([
