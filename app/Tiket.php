@@ -11,7 +11,7 @@ class Tiket extends Model
     protected $primaryKey = 'no_tiket';
 
     protected $fillable = [
-        'no_tiket',
+        'id',
         'id_driver',
         'chatid',
         'username',

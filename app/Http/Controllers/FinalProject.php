@@ -548,7 +548,7 @@ class FinalProject extends Controller
 		]);
 	}//ini akhir fungsi
 
-	public function showMenu($chatid, $info = null)//fungsi buat nampilin menu
+	public function showMenu($chatid)//fungsi buat nampilin menu
   {//awal fungsi
 		// this will create keyboard buttons for users to touch instead of typing commands
 		$inlineLayout = [[
