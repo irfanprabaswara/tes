@@ -56,7 +56,9 @@ Route::get('/unset', 'webhook@unsetWebhook');//buat unset webhook
 // Route::post('webhook', 'updatedriver@webhook');//buat update driver
 // Route::post('webhook', 'updatetiket@webhook');//buat update tiket
 // Route::post('webhook', 'confirmSelesai@webhook');//buat confirm kalo udah selesai bertugas
-Route::post('webhook', 'FinalProject@webhook');//FINAL
+// Route::post('webhook', 'FinalProject@webhook');//FINAL
+Route::post('webhook', 'ShareLoct@webhook');//FINAL
+Route::get('coba','DataPerjalanan@tampilData');
 
 
 // Route::post('webhook', 'master@webhook');//FINAL

@@ -170,7 +170,10 @@ class updatedriver extends Controller
 
           /*BUAT UPDATE DRIVER*/
   			case $text === '/updatedriver'://Udah bisa
-  				$this->menuUpdateDriver($chatid);
+          $otong=437329516;
+          if ($chatid==$otong) {
+    				$this->menuUpdateDriver($chatid);
+          }
   				break;
         case $text === 'setPenugasan'://udah bisa
           $month_input = date("Y-m");

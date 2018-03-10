@@ -13,6 +13,7 @@ use Exception;
 use DateTime;
 use DateInterval;
 use App\Pemesanan;
+use App\Tiket;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -151,7 +152,7 @@ class pesandriver extends Controller
 							else {
 								$today = strftime('%F');
 								if ($params[0]<$today) {
-									$this->pesanError($chatid);
+									$this->pesanError($chatid, $messageid);
 								}else {
 								$tanggals = $params[0];
 
@@ -167,7 +168,7 @@ class pesandriver extends Controller
 											->setBindings([$tanggals,'SELESAI'])
 								  		->get();
 						  			if ($cekDriver->count()>0) {
-											$this->aturPic($chatid, $params);
+											$this->aturPic($chatid, $params, $messageid);
 										}
 										else {
 											$message="*MAAF, DRIVER PENUH*";
@@ -180,11 +181,11 @@ class pesandriver extends Controller
 								}//end else
 						}//end else
 						}elseif(count($params)==2){
-							$this->lokasi($chatid, $params);
+							$this->lokasi($chatid, $params, $messageid);
 						}elseif(count($params)==3){
-							$this->cekPesan($chatid, $params);
+							$this->cekPesan($chatid, $params, $messageid);
 						}elseif (count($params)==4) {
-							$this->simpanPesanan($chatid, $params, $username);
+							$this->simpanPesanan($chatid, $params, $username, $messageid);
 						}
 						//$response_txt .= "Mengenal command dan berhasil merespon\n";
 						break;
@@ -194,7 +195,7 @@ class pesandriver extends Controller
 							break;
 
 				default:
-					 $this->defaultMessage($chatid, $text, $username);
+					 $this->defaultMessage($chatid, $text, $username, $messageid);
 					 break;
 			}//end switch
 		}catch (\Exception $e) {
@@ -205,16 +206,19 @@ class pesandriver extends Controller
 		}//end catch
 	}//akhir fungsi webhook
 
-	public function pesanError($chatid)
+	public function pesanError($chatid, $messageid)
 	{
+
 		$message="Tanggal penugasan sudah kadaluarsa. \nSilakan pilih kembali tanggal keberangkatan diatas atau klik /pesandriver untuk pemesanan ulang.";
-		$response= Telegram::sendMessage([
+		$response = Telegram::editMessageText([
 			'chat_id' => $chatid,
+			'parse_mode' => 'markdown',
+			'message_id' =>$messageid,
 			'text' => $message
 		]);
 	}
 
-	public function cekPesan($chatid, $params)
+	public function cekPesan($chatid, $params, $messageid)
 	{//awal fungsi
 		$setlist=['BENAR','CANCEL'];
 		$message = "*DETAIL PESANAN ANDA*\n\n";
@@ -250,15 +254,16 @@ class pesandriver extends Controller
 		]);
 
 		// Now send the message with they keyboard using 'reply_markup' parameter
-		$response = Telegram::sendMessage([
+		$response = Telegram::editMessageText([
 			'chat_id' => $chatid,
-			'text' => $message,
 			'parse_mode' => 'markdown',
+			'message_id' =>$messageid,
+			'text' => $message,
 			'reply_markup' => $keyboard
 		]);
 	}//akhir fungsi
 
-	public function lokasi($chatid, $params)//fungsi buat milih tujuan kerja
+	public function lokasi($chatid, $params, $messageid)//fungsi buat milih tujuan kerja
   {//awal fungsi
 		$message="";
 		$location = [];
@@ -288,11 +293,12 @@ class pesandriver extends Controller
 		    'inline_keyboard' => $location
 		]);
 
-		$response = Telegram::sendMessage([
-		  'chat_id' => $chatid,
-		  'parse_mode' => 'markdown',
-		  'text' => $message,
-		  'reply_markup' => $reply_markup
+		$response = Telegram::editMessageText([
+			'chat_id' => $chatid,
+			'parse_mode' => 'markdown',
+			'message_id' =>$messageid,
+			'text' => $message,
+			'reply_markup' => $reply_markup
 		]);
 	}//akhir fungsi
 
@@ -402,7 +408,7 @@ class pesandriver extends Controller
 		return $calendar;
 	}//akhir fungsi create calendar
 
-	public function aturPic($chatid, $params)
+	public function aturPic($chatid, $params, $messageid)
 	{//awal fungsi pic
 		$message="";
 		$pic = [];
@@ -435,32 +441,40 @@ class pesandriver extends Controller
 				'inline_keyboard' => $pic
 			]);
 
-			$response = Telegram::sendMessage([
-				'chat_id' => $chatid,
-				'parse_mode' => 'markdown',
-				'text' => $message,
-				'reply_markup' => $reply_markup
+			$response = Telegram::editMessageText([
+			  'chat_id' => $chatid,
+			  'parse_mode' => 'markdown',
+			  'message_id' =>$messageid,
+			  'text' => $message,
+			  'reply_markup' => $reply_markup
 			]);
 
 	}//ini akhir fungsi pic
 
-	public function simpanPesanan($chatid, $params, $username)
+	public function simpanPesanan($chatid, $params, $username, $messageid)
   {//awal fungsi
 		$status="";
 		$syarat=$params[3];
 		if($params[3]=='BENAR'){
 				$status="";
-				$newpemesanan= DB::table('tiket')->insertGetId(array('chatid'=>$chatid, 'username'=>$username, 'pic'=>$params[1], 'tanggal'=>$params[0], 'lokasi'=>$params[2]));
+				$newpemesanan=Tiket::insertGetId([
+					'chatid'=>$chatid,
+					'username'=>$username,
+					'pic'=>$params[1],
+					'tanggal'=>$params[0],
+					'lokasi'=>$params[2]
+				]);
+				// DB::table('tiket')->insertGetId(array('chatid'=>$chatid, 'username'=>$username, 'pic'=>$params[1], 'tanggal'=>$params[0], 'lokasi'=>$params[2]));
 				//DB::table('pemesanan')->insert(['pic'=>$params[1],'username'=>$username,'chatid'=>$chatid,'tanggal'=>$params[0], 'lokasi'=>$params[2]]);
 				$pesan="Hallo, ada pemesanan dari bagian ".$params[1]." atas nama ".$username." dengan tujuan ".$params[2]." pada tanggal ".$params[0].". Silakan click /updatetiket untuk memproses tiket yang ada";
 				$message = "*Pemesanan Berhasil. Nomor tiket anda adalah : $newpemesanan*\n";
 				//$result=
 
-
-				$response = Telegram::sendMessage([
-					'chat_id' => $chatid,
-					'parse_mode' => 'markdown',
-					'text' => $message
+				$response = Telegram::editMessageText([
+				  'chat_id' => $chatid,
+				  'parse_mode' => 'markdown',
+				  'message_id' =>$messageid,
+				  'text' => $message
 				]);
 
 				// $this->pesanUser($chatid);
@@ -471,9 +485,11 @@ class pesandriver extends Controller
 				]);
 		}else {
 			$message = "Silakan klik /pesandriver untuk melakukan pemesanan ulang";
-			$response=Telegram::sendMessage([
-				'chat_id'=>$chatid,
-				'text'=>$message
+			$response = Telegram::editMessageText([
+			  'chat_id' => $chatid,
+			  'parse_mode' => 'markdown',
+			  'message_id' =>$messageid,
+			  'text' => $message,
 			]);
 		}//akhir else
 	}//akhir fungsi
